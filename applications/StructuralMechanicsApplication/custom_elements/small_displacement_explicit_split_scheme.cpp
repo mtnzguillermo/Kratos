@@ -214,7 +214,7 @@ void SmallDisplacementExplicitSplitScheme::CalculateLumpedDampingVector(
             beta = rCurrentProcessInfo[RAYLEIGH_BETA];
 
         // For SSAN++
-        theta_3 = rCurrentProcessInfo[THETA_3];
+        const double theta_3 = rCurrentProcessInfo[THETA_3];
 
         // 1.-Calculate mass Vector:
         if (alpha > std::numeric_limits<double>::epsilon()) {
