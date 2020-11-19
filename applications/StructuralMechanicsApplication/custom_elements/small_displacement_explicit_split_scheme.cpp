@@ -213,6 +213,9 @@ void SmallDisplacementExplicitSplitScheme::CalculateLumpedDampingVector(
         else if( rCurrentProcessInfo.Has(RAYLEIGH_BETA) )
             beta = rCurrentProcessInfo[RAYLEIGH_BETA];
 
+        // For SSAN++
+        theta_3 = rCurrentProcessInfo[THETA_3];
+
         // 1.-Calculate mass Vector:
         if (alpha > std::numeric_limits<double>::epsilon()) {
             VectorType mass_vector(mat_size);
@@ -226,7 +229,7 @@ void SmallDisplacementExplicitSplitScheme::CalculateLumpedDampingVector(
             VectorType stiffness_vector(mat_size);
             CalculateLumpedStiffnessVector(stiffness_vector,rCurrentProcessInfo);
             for (IndexType i = 0; i < mat_size; ++i)
-                rDampingVector[i] += beta * stiffness_vector[i];
+                rDampingVector[i] += theta_3 * beta * stiffness_vector[i];
         }
 
     } else {

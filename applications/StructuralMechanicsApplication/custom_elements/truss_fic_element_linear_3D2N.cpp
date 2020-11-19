@@ -231,6 +231,9 @@ void TrussFICElementLinear3D2N::CalculateLumpedDampingVector(
         else if( rCurrentProcessInfo.Has(RAYLEIGH_BETA) )
             beta = rCurrentProcessInfo[RAYLEIGH_BETA];
 
+        // For SSAN++
+        theta_3 = rCurrentProcessInfo[THETA_3];
+
         // 1.-Calculate mass Vector:
         if (alpha > std::numeric_limits<double>::epsilon()) {
             VectorType mass_vector(msLocalSize);
@@ -244,7 +247,7 @@ void TrussFICElementLinear3D2N::CalculateLumpedDampingVector(
             VectorType stiffness_vector(msLocalSize);
             CalculateLumpedStiffnessVector(stiffness_vector,rCurrentProcessInfo);
             for (IndexType i = 0; i < msLocalSize; ++i)
-                rDampingVector[i] += beta * stiffness_vector[i];
+                rDampingVector[i] += theta_3 * beta * stiffness_vector[i];
         }
 
     } else {

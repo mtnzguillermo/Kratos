@@ -523,8 +523,7 @@ public:
 
         // Solution of the explicit equation:
         noalias(r_current_impulse) += mDeltaTime*r_external_forces - ((1.0-mTheta3)*mBeta+mDeltaTime*mTheta1)*r_current_internal_force +
-                                      ((1.0-mTheta3)*mBeta-mDeltaTime*(1.0-mTheta1))*r_previous_internal_force +
-                                      mDeltaTime*(1.0-mTheta3)*mBeta*nodal_stiffness*r_current_velocity;
+                                      ((1.0-mTheta3)*mBeta-mDeltaTime*(1.0-mTheta1))*r_previous_internal_force;
     }
 
     /**
