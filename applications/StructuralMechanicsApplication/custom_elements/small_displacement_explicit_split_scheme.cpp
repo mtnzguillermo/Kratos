@@ -117,18 +117,20 @@ void SmallDisplacementExplicitSplitScheme::AddExplicitContribution(
         CalculateLumpedDampingVector(element_damping_vector, rCurrentProcessInfo);
 
         for (IndexType i = 0; i < number_of_nodes; ++i) {
-            double& r_nodal_stiffness = r_geom[i].GetValue(NODAL_PAUX);
-            double& r_nodal_damping = r_geom[i].GetValue(NODAL_DISPLACEMENT_DAMPING);
+            array_1d<double, 3>& r_nodal_stiffness = r_geom[i].GetValue(NODAL_DIAGONAL_STIFFNESS);
+            array_1d<double, 3>& r_nodal_damping = r_geom[i].GetValue(NODAL_DIAGONAL_DAMPING);
             const IndexType index = i * dimension;
 
             #pragma omp atomic
             r_geom[i].GetValue(NODAL_MASS) += element_mass_vector[index];
 
-            #pragma omp atomic
-            r_nodal_stiffness += element_stiffness_vector[index];
+            for (IndexType j = 0; j < dimension; ++j) {
+                #pragma omp atomic
+                r_nodal_stiffness[j] += element_stiffness_vector[index+j];
 
-            #pragma omp atomic
-            r_nodal_damping += element_damping_vector[index];
+                #pragma omp atomic
+                r_nodal_damping[j] += element_damping_vector[index+j];
+            }
         }
     }
 
