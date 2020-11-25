@@ -35,8 +35,7 @@ namespace Kratos {
 
         KRATOS_TRY
         double radius_sum = radius + other_radius;
-        //double equiv_radius = radius * other_radius / radius_sum;
-        double equiv_radius = 0.5 * radius_sum;
+        double equiv_radius = radius * other_radius / radius_sum;
         calculation_area = Globals::Pi * equiv_radius * equiv_radius;
         KRATOS_CATCH("")
     }
@@ -82,15 +81,19 @@ namespace Kratos {
 
         const double my_mass    = element1->GetMass();
         const double other_mass = element2->GetMass();
-
         const double equiv_mass = 1.0 / (1.0/my_mass + 1.0/other_mass);
+
+        array_1d<double, 3> other_to_me_vect;
+        noalias(other_to_me_vect) = element1->GetGeometry()[0].Coordinates() - element2->GetGeometry()[0].Coordinates();
+        const double distance = DEM_MODULUS_3(other_to_me_vect);
+        const double norm_distance = (element1->GetRadius() + element2->GetRadius()) / distance; // If spheres are not tangent the Damping coefficient has to be normalized
 
         const double my_gamma    = element1->GetProperties()[DAMPING_GAMMA];
         const double other_gamma = element2->GetProperties()[DAMPING_GAMMA];
         const double equiv_gamma = 0.5 * (my_gamma + other_gamma);
 
-        equiv_visco_damp_coeff_normal     = 2.0 * equiv_gamma * sqrt(equiv_mass * kn_el);
-        equiv_visco_damp_coeff_tangential = 2.0 * equiv_gamma * sqrt(equiv_mass * kt_el);
+        equiv_visco_damp_coeff_normal     = 2.0 * equiv_gamma * sqrt(equiv_mass * kn_el) * norm_distance;
+        equiv_visco_damp_coeff_tangential = 2.0 * equiv_gamma * sqrt(equiv_mass * kt_el) * norm_distance;
 
         KRATOS_CATCH("")
     }
@@ -147,30 +150,30 @@ namespace Kratos {
     }
 
     void DEM_KDEM::CalculateForces(const ProcessInfo& r_process_info,
-                                double OldLocalElasticContactForce[3],
-                                double LocalElasticContactForce[3],
-                                double LocalElasticExtraContactForce[3],
-                                double LocalCoordSystem[3][3],
-                                double LocalDeltDisp[3],
-                                const double kn_el,
-                                const double kt_el,
-                                double& contact_sigma,
-                                double& contact_tau,
-                                double& failure_criterion_state,
-                                double equiv_young,
-                                double equiv_shear,
-                                double indentation,
-                                double calculation_area,
-                                double& acumulated_damage,
-                                SphericContinuumParticle* element1,
-                                SphericContinuumParticle* element2,
-                                int i_neighbour_count,
-                                int time_steps,
-                                bool& sliding,
-                                double &equiv_visco_damp_coeff_normal,
-                                double &equiv_visco_damp_coeff_tangential,
-                                double LocalRelVel[3],
-                                double ViscoDampingLocalContactForce[3]) {
+                                   double OldLocalElasticContactForce[3],
+                                   double LocalElasticContactForce[3],
+                                   double LocalElasticExtraContactForce[3],
+                                   double LocalCoordSystem[3][3],
+                                   double LocalDeltDisp[3],
+                                   const double kn_el,
+                                   const double kt_el,
+                                   double& contact_sigma,
+                                   double& contact_tau,
+                                   double& failure_criterion_state,
+                                   double equiv_young,
+                                   double equiv_shear,
+                                   double indentation,
+                                   double calculation_area,
+                                   double& acumulated_damage,
+                                   SphericContinuumParticle* element1,
+                                   SphericContinuumParticle* element2,
+                                   int i_neighbour_count,
+                                   int time_steps,
+                                   bool& sliding,
+                                   double &equiv_visco_damp_coeff_normal,
+                                   double &equiv_visco_damp_coeff_tangential,
+                                   double LocalRelVel[3],
+                                   double ViscoDampingLocalContactForce[3]) {
 
         KRATOS_TRY
         CalculateNormalForces(LocalElasticContactForce,
@@ -288,6 +291,7 @@ namespace Kratos {
         KRATOS_TRY
 
         int& failure_type = element1->mIniNeighbourFailureId[i_neighbour_count];
+
         LocalElasticContactForce[0] = OldLocalElasticContactForce[0] - kt_el * LocalDeltDisp[0]; // 0: first tangential
         LocalElasticContactForce[1] = OldLocalElasticContactForce[1] - kt_el * LocalDeltDisp[1]; // 1: second tangential
 
@@ -391,6 +395,7 @@ namespace Kratos {
         //GeometryFunctions::VectorGlobal2Local(LocalCoordSystem, mContactMoment, LocalRotationalMoment);
 
         const double equivalent_radius = std::sqrt(calculation_area / Globals::Pi);
+
         const double element_mass  = element->GetMass();
         const double neighbor_mass = neighbor->GetMass();
         const double equiv_mass    = element_mass * neighbor_mass / (element_mass + neighbor_mass);
@@ -398,6 +403,7 @@ namespace Kratos {
         AdjustEquivalentYoung(equiv_young, element, neighbor);
 
         const double equiv_shear   = equiv_young / (2.0 * (1 + equiv_poisson));
+
         const double Inertia_I     = 0.25 * Globals::Pi * equivalent_radius * equivalent_radius * equivalent_radius * equivalent_radius;
         const double Inertia_J     = 2.0 * Inertia_I; // This is the polar inertia
 
@@ -405,31 +411,23 @@ namespace Kratos {
         const double other_gamma = neighbor->GetProperties()[DAMPING_GAMMA];
         const double equiv_gamma = 0.5 * (my_gamma + other_gamma);
 
+        const double k_rot = equiv_young * Inertia_I / distance;
+        const double k_tor = equiv_shear * Inertia_J / distance;
+
+        const double norm_distance = (element->GetRadius() + neighbor->GetRadius()) / distance; // If spheres are not tangent the Damping coefficient, DeltaRotatedAngle and DeltaAngularVelocity have to be normalized
+
         //Viscous parameter taken from Olmedo et al., 'Discrete element model of the dynamic response of fresh wood stems to impact'
         array_1d<double, 3> visc_param;
-        visc_param[0] = 2.0 * equiv_gamma * std::sqrt(equiv_mass * equiv_young * Inertia_I / distance); // OLMEDO
-        visc_param[1] = 2.0 * equiv_gamma * std::sqrt(equiv_mass * equiv_young * Inertia_I / distance); // OLMEDO
-        visc_param[2] = 2.0 * equiv_gamma * std::sqrt(equiv_mass * equiv_shear * Inertia_J / distance); // OLMEDO
+        const double visc_param_rot = 2.0 * equiv_gamma * sqrt(equiv_mass * k_rot) * norm_distance;
+        const double visc_param_tor = 2.0 * equiv_gamma * sqrt(equiv_mass * k_tor) * norm_distance;
 
-        double aux = (element->GetRadius() + neighbor->GetRadius()) / distance; // This is necessary because if spheres are not tangent the DeltaAngularVelocity has to be interpolated
+        ElasticLocalRotationalMoment[0] = -k_rot * LocalDeltaRotatedAngle[0] * norm_distance;
+        ElasticLocalRotationalMoment[1] = -k_rot * LocalDeltaRotatedAngle[1] * norm_distance;
+        ElasticLocalRotationalMoment[2] = -k_tor * LocalDeltaRotatedAngle[2] * norm_distance;
 
-        array_1d<double, 3> LocalEffDeltaRotatedAngle;
-        LocalEffDeltaRotatedAngle[0] = LocalDeltaRotatedAngle[0] * aux;
-        LocalEffDeltaRotatedAngle[1] = LocalDeltaRotatedAngle[1] * aux;
-        LocalEffDeltaRotatedAngle[2] = LocalDeltaRotatedAngle[2] * aux;
-
-        array_1d<double, 3> LocalEffDeltaAngularVelocity;
-        LocalEffDeltaAngularVelocity[0] = LocalDeltaAngularVelocity[0] * aux;
-        LocalEffDeltaAngularVelocity[1] = LocalDeltaAngularVelocity[1] * aux;
-        LocalEffDeltaAngularVelocity[2] = LocalDeltaAngularVelocity[2] * aux;
-
-        ElasticLocalRotationalMoment[0] = -equiv_young * Inertia_I * LocalEffDeltaRotatedAngle[0] / distance;
-        ElasticLocalRotationalMoment[1] = -equiv_young * Inertia_I * LocalEffDeltaRotatedAngle[1] / distance;
-        ElasticLocalRotationalMoment[2] = -equiv_shear * Inertia_J * LocalEffDeltaRotatedAngle[2] / distance;
-
-        ViscoLocalRotationalMoment[0] = -visc_param[0] * LocalEffDeltaAngularVelocity[0];
-        ViscoLocalRotationalMoment[1] = -visc_param[1] * LocalEffDeltaAngularVelocity[1];
-        ViscoLocalRotationalMoment[2] = -visc_param[2] * LocalEffDeltaAngularVelocity[2];
+        ViscoLocalRotationalMoment[0] = -visc_param_rot * LocalDeltaAngularVelocity[0] * norm_distance;
+        ViscoLocalRotationalMoment[1] = -visc_param_rot * LocalDeltaAngularVelocity[1] * norm_distance;
+        ViscoLocalRotationalMoment[2] = -visc_param_tor * LocalDeltaAngularVelocity[2] * norm_distance;
 
         DEM_MULTIPLY_BY_SCALAR_3(ElasticLocalRotationalMoment, rotational_moment_coeff);
         DEM_MULTIPLY_BY_SCALAR_3(ViscoLocalRotationalMoment, rotational_moment_coeff);

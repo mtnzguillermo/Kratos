@@ -83,12 +83,12 @@ class Algorithm():
                             mixed_mp
                             )
 
-        structures_nodal_results = ["VOLUME_ACCELERATION","DEM_SURFACE_LOAD","REACTION"]
-        dem_nodal_results = ["IS_STICKY", "DEM_STRESS_TENSOR"]
+        structures_nodal_results = ["VOLUME_ACCELERATION","DEM_SURFACE_LOAD","REACTION","TARGET_STRESS","REACTION_STRESS","LOADING_VELOCITY"]
+        dem_nodal_results = ["VELOCITY","RIGID_ELEMENT_FORCE"] # ["IS_STICKY", "DEM_STRESS_TENSOR"]
         clusters_nodal_results = []
         rigid_faces_nodal_results = []
         contact_model_part_results = ["CONTACT_FAILURE"]
-        mixed_nodal_results = ["DISPLACEMENT", "VELOCITY"]
+        mixed_nodal_results = ["DISPLACEMENT"]
         gauss_points_results = ["CAUCHY_STRESS_TENSOR"]
         self.gid_output.initialize_dem_fem_results(structures_nodal_results,
                                                    dem_nodal_results,
@@ -125,7 +125,8 @@ class Algorithm():
     def _TransferStructuresSkinToDem(self):
         self.structural_mp = self.structural_solution._GetSolver().GetComputingModelPart()
         self.skin_mp = self.structural_mp.GetSubModelPart("DetectedByProcessSkinModelPart")
-        dem_walls_mp = self.dem_solution.rigid_face_model_part.CreateSubModelPart("SkinTransferredFromStructure")
+        # dem_walls_mp = self.dem_solution.rigid_face_model_part.CreateSubModelPart("SkinTransferredFromStructure")
+        dem_walls_mp = self.dem_solution.rigid_face_model_part
         max_prop_id = 0
         for prop in dem_walls_mp.Properties:
             if prop.Id > max_prop_id:
@@ -136,11 +137,11 @@ class Algorithm():
         props[Dem.DYNAMIC_FRICTION] = 0.2
         props[Dem.WALL_COHESION] = 0.0
         props[Dem.COMPUTE_WEAR] = False
-        props[Dem.SEVERITY_OF_WEAR] = 0.001
-        props[Dem.IMPACT_WEAR_SEVERITY] = 0.001
-        props[Dem.BRINELL_HARDNESS] = 200.0
-        props[Kratos.YOUNG_MODULUS] = 7e9
-        props[Kratos.POISSON_RATIO] = 0.16
+        props[Dem.SEVERITY_OF_WEAR] = 0.0
+        props[Dem.IMPACT_WEAR_SEVERITY] = 0.0
+        props[Dem.BRINELL_HARDNESS] = 0.0
+        props[Kratos.YOUNG_MODULUS] = 16.8e9
+        props[Kratos.POISSON_RATIO] = 0.2
         dem_walls_mp.AddProperties(props)
         DemFem.DemStructuresCouplingUtilities().TransferStructuresSkinToDem(self.skin_mp, dem_walls_mp, props)
 

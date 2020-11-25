@@ -204,10 +204,10 @@ namespace Kratos {
     }
 
     void SphericContinuumParticle::ComputeBallToBallContactForce(SphericParticle::ParticleDataBuffer & data_buffer,
-                                                                const ProcessInfo& r_process_info,
-                                                                array_1d<double, 3>& rElasticForce,
-                                                                array_1d<double, 3>& rContactForce,
-                                                                double& RollingResistance)
+                                                                 const ProcessInfo& r_process_info,
+                                                                 array_1d<double, 3>& rElasticForce,
+                                                                 array_1d<double, 3>& rContactForce,
+                                                                 double& RollingResistance)
     {
         KRATOS_TRY
 

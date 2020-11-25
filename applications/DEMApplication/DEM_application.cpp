@@ -35,6 +35,7 @@
 #include "custom_constitutive/DEM_D_Stress_dependent_cohesive_CL.h"
 #include "custom_constitutive/dem_d_linear_custom_constants_cl.h"
 #include "custom_constitutive/DEM_D_Conical_damage_CL.h"
+#include "custom_constitutive/DEM_continuum_Conical_damage_CL.h"
 #include "custom_constitutive/DEM_KDEM_fabric_CL.h"
 #include "custom_constitutive/DEM_beam_constitutive_law.h"
 #include "custom_constitutive/DEM_KDEM_Rankine_CL.h"
@@ -488,6 +489,7 @@ KratosDEMApplication::KratosDEMApplication() : KratosApplication("DEMApplication
     mRigidBodyElement3D(0, Element::GeometryType::Pointer(new Point3D<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mShipElement3D(0, Element::GeometryType::Pointer(new Point3D<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mContactInfoSphericParticle3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
+    mContactInfoContinuumSphericParticle3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mCluster3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mSingleSphereCluster3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mMapCon3D3N(0, Element::GeometryType::Pointer(new Triangle3D3<Node<3> >(Element::GeometryType::PointsArrayType(3)))) {}
@@ -905,6 +907,7 @@ void KratosDEMApplication::Register() {
     KRATOS_REGISTER_ELEMENT("RigidBodyElement3D", mRigidBodyElement3D)
     KRATOS_REGISTER_ELEMENT("ShipElement3D", mShipElement3D)
     KRATOS_REGISTER_ELEMENT("ContactInfoSphericParticle3D", mContactInfoSphericParticle3D)
+    KRATOS_REGISTER_ELEMENT("ContactInfoContinuumSphericParticle3D", mContactInfoContinuumSphericParticle3D)
     KRATOS_REGISTER_ELEMENT("Cluster3D", mCluster3D)
     KRATOS_REGISTER_ELEMENT("SingleSphereCluster3D", mSingleSphereCluster3D)
 
@@ -923,22 +926,17 @@ void KratosDEMApplication::Register() {
     // SERIALIZER
     Serializer::Register("PropertiesProxy", PropertiesProxy());
 
-    Serializer::Register(
-        "DEM_D_Linear_viscous_Coulomb", DEM_D_Linear_viscous_Coulomb());
-    Serializer::Register(
-        "DEM_D_Linear_viscous_Coulomb2D", DEM_D_Linear_viscous_Coulomb2D());
-    Serializer::Register(
-        "DEM_D_Hertz_viscous_Coulomb", DEM_D_Hertz_viscous_Coulomb());
-    Serializer::Register(
-        "DEM_D_Hertz_viscous_Coulomb2D", DEM_D_Hertz_viscous_Coulomb2D());
+    Serializer::Register("DEM_D_Linear_viscous_Coulomb", DEM_D_Linear_viscous_Coulomb());
+    Serializer::Register("DEM_D_Linear_viscous_Coulomb2D", DEM_D_Linear_viscous_Coulomb2D());
+    Serializer::Register("DEM_D_Hertz_viscous_Coulomb", DEM_D_Hertz_viscous_Coulomb());
+    Serializer::Register("DEM_D_Hertz_viscous_Coulomb2D", DEM_D_Hertz_viscous_Coulomb2D());
     Serializer::Register("DEM_D_JKR_Cohesive_Law", DEM_D_JKR_Cohesive_Law());
     Serializer::Register("DEM_D_Bentonite_Colloid", DEM_D_Bentonite_Colloid());
     Serializer::Register("DEM_D_DMT_Cohesive_Law", DEM_D_DMT_Cohesive_Law());
     Serializer::Register("DEM_D_Stress_Dependent_Cohesive", DEM_D_Stress_Dependent_Cohesive());
-    Serializer::Register(
-        "DEM_D_Linear_Custom_Constants", DEM_D_Linear_Custom_Constants());
-    Serializer::Register(
-        "DEM_D_Conical_damage", DEM_D_Conical_damage());
+    Serializer::Register("DEM_D_Linear_Custom_Constants", DEM_D_Linear_Custom_Constants());
+    Serializer::Register("DEM_D_Conical_damage", DEM_D_Conical_damage());
+    Serializer::Register("DEM_continuum_Conical_damage", DEM_continuum_Conical_damage());
     Serializer::Register("DEM_D_Hertz_viscous_Coulomb_Nestle",
         DEM_D_Hertz_viscous_Coulomb_Nestle());
 

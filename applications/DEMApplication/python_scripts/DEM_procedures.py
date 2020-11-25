@@ -889,7 +889,7 @@ class DEMFEMProcedures():
         self.graph_counter = 1
         self.balls_graph_counter = 0
 
-        self.graph_frequency = int((self.DEM_parameters["GraphExportFreq"].GetDouble() / spheres_model_part.ProcessInfo.GetValue(DELTA_TIME))+1.0)
+        self.graph_frequency = int((self.DEM_parameters["GraphExportFreq"].GetDouble() / spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)))
         if self.graph_frequency < 1:
             # that means it is not possible to print results with a higher frequency than the computations delta time
             self.graph_frequency = 1

@@ -16,17 +16,17 @@
 
 namespace Kratos {
 
-    BeamParticle::BeamParticle() : SphericContinuumParticle() {}
+    BeamParticle::BeamParticle() : ContactInfoContinuumSphericParticle() {}
 
-    BeamParticle::BeamParticle(IndexType NewId, GeometryType::Pointer pGeometry) : SphericContinuumParticle(NewId, pGeometry) {}
+    BeamParticle::BeamParticle(IndexType NewId, GeometryType::Pointer pGeometry) : ContactInfoContinuumSphericParticle(NewId, pGeometry) {}
 
 
     BeamParticle::BeamParticle(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties)
-    : SphericContinuumParticle(NewId, pGeometry, pProperties) {}
+    : ContactInfoContinuumSphericParticle(NewId, pGeometry, pProperties) {}
 
 
     BeamParticle::BeamParticle(IndexType NewId, NodesArrayType const& ThisNodes)
-    : SphericContinuumParticle(NewId, ThisNodes) {}
+    : ContactInfoContinuumSphericParticle(NewId, ThisNodes) {}
 
 
     BeamParticle::BeamParticle(Element::Pointer p_continuum_spheric_particle)
@@ -58,14 +58,16 @@ namespace Kratos {
 
     void BeamParticle::CalculateMeanContactArea(const bool has_mpi, const ProcessInfo& r_process_info) {}
 
-    double BeamParticle::CalculateMaxSearchDistance(const bool has_mpi, const ProcessInfo& r_process_info) { return 0.0; }
+    double BeamParticle::CalculateMaxSearchDistance(const bool has_mpi, const ProcessInfo& r_process_info) {
+        return 0.0;
+    }
 
     void BeamParticle::Initialize(const ProcessInfo& r_process_info)
     {
 
         KRATOS_TRY
 
-        SphericContinuumParticle::Initialize(r_process_info);
+        ContactInfoContinuumSphericParticle::Initialize(r_process_info);
 
         double distance = GetProperties()[BEAM_PARTICLES_DISTANCE];
 
@@ -119,6 +121,7 @@ namespace Kratos {
 
     void BeamParticle::InitializeSolutionStep(const ProcessInfo& r_process_info)
     {
+
         KRATOS_TRY
 
         mRadius = this->GetGeometry()[0].FastGetSolutionStepValue(RADIUS); //Just in case someone is overwriting the radius in Python
@@ -161,7 +164,7 @@ namespace Kratos {
 
             if (mNeighbourElements[i] == NULL) continue;
             if (this->Is(NEW_ENTITY) && mNeighbourElements[i]->Is(NEW_ENTITY)) continue;
-            SphericContinuumParticle* neighbour_iterator = dynamic_cast<SphericContinuumParticle*>(mNeighbourElements[i]);
+            ContactInfoContinuumSphericParticle* neighbour_iterator = dynamic_cast<ContactInfoContinuumSphericParticle*>(mNeighbourElements[i]);
             data_buffer.mpOtherParticle = neighbour_iterator;
 
             unsigned int neighbour_iterator_id = data_buffer.mpOtherParticle->Id();
@@ -389,13 +392,13 @@ namespace Kratos {
                 total_local_elastic_contact_force[0] = LocalElasticContactForce[0] + LocalElasticExtraContactForce[0];
                 total_local_elastic_contact_force[1] = LocalElasticContactForce[1] + LocalElasticExtraContactForce[1];
                 total_local_elastic_contact_force[2] = LocalElasticContactForce[2] + LocalElasticExtraContactForce[2];
-                SphericContinuumParticle::CalculateOnContinuumContactElements(i,
-                                                                              total_local_elastic_contact_force,
-                                                                              contact_sigma,
-                                                                              contact_tau,
-                                                                              failure_criterion_state,
-                                                                              acumulated_damage,
-                                                                              time_steps);
+                ContactInfoContinuumSphericParticle::CalculateOnContinuumContactElements(i,
+                                                                                         total_local_elastic_contact_force,
+                                                                                         contact_sigma,
+                                                                                         contact_tau,
+                                                                                         failure_criterion_state,
+                                                                                         acumulated_damage,
+                                                                                         time_steps);
             }
         } // for each neighbor
 

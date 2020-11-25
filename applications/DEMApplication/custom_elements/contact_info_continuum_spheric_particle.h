@@ -1,7 +1,7 @@
 //   $Author: Joaquín Irazábal jirazabal@cimne.upc.edu
 
-#if !defined(KRATOS_CONTACT_INFO_SPHERIC_PARTICLE_H_INCLUDED)
-#define  KRATOS_CONTACT_INFO_SPHERIC_PARTICLE_H_INCLUDED
+#if !defined(KRATOS_CONTACT_INFO_CONTINUUM_SPHERIC_PARTICLE_H_INCLUDED)
+#define  KRATOS_CONTACT_INFO_CONTINUUM_SPHERIC_PARTICLE_H_INCLUDED
 
 // System includes
 #include <string>
@@ -11,41 +11,41 @@
 // External includes
 
 // Project includes
-#include "spheric_particle.h"
+#include "spheric_continuum_particle.h"
 
 namespace Kratos {
 
-    class KRATOS_API(DEM_APPLICATION) ContactInfoSphericParticle : public SphericParticle
+    class KRATOS_API(DEM_APPLICATION) ContactInfoContinuumSphericParticle : public SphericContinuumParticle
     {
         public:
 
-        /// Pointer definition of ContactInfoSphericParticle
-        KRATOS_CLASS_INTRUSIVE_POINTER_DEFINITION(ContactInfoSphericParticle);
+        /// Pointer definition of ContactInfoContinuumSphericParticle
+        KRATOS_CLASS_INTRUSIVE_POINTER_DEFINITION(ContactInfoContinuumSphericParticle);
 
-        ContactInfoSphericParticle();
-        ContactInfoSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry);
-        ContactInfoSphericParticle(IndexType NewId, NodesArrayType const& ThisNodes);
-        ContactInfoSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties);
-        ContactInfoSphericParticle(Element::Pointer p_spheric_particle);
+        ContactInfoContinuumSphericParticle();
+        ContactInfoContinuumSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry);
+        ContactInfoContinuumSphericParticle(IndexType NewId, NodesArrayType const& ThisNodes);
+        ContactInfoContinuumSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties);
+        ContactInfoContinuumSphericParticle(Element::Pointer p_continuum_spheric_particle);
 
         Element::Pointer Create(IndexType NewId, NodesArrayType const& ThisNodes, PropertiesType::Pointer pProperties) const override;
 
         /// Destructor.
-        virtual ~ContactInfoSphericParticle(){}
+        virtual ~ContactInfoContinuumSphericParticle(){}
 
-        ContactInfoSphericParticle& operator=(const ContactInfoSphericParticle& rOther);
+        ContactInfoContinuumSphericParticle& operator=(const ContactInfoContinuumSphericParticle& rOther);
 
         virtual std::string Info() const override
         {
             std::stringstream buffer;
-            buffer << "ContactInfoSphericParticle" ;
+            buffer << "ContactInfoContinuumSphericParticle" ;
             return buffer.str();
         }
 
         /// Print information about this object.
         void PrintInfo(std::ostream& rOStream) const override
         {
-            rOStream << "ContactInfoSphericParticle";
+            rOStream << "ContactInfoContinuumSphericParticle";
         }
 
         /// Print object's data.
@@ -100,21 +100,21 @@ namespace Kratos {
 
         virtual void save(Serializer& rSerializer) const override
         {
-            KRATOS_SERIALIZE_SAVE_BASE_CLASS(rSerializer, SphericParticle);
+            KRATOS_SERIALIZE_SAVE_BASE_CLASS(rSerializer, SphericContinuumParticle);
         }
 
         virtual void load(Serializer& rSerializer) override
         {
-            KRATOS_SERIALIZE_LOAD_BASE_CLASS(rSerializer, SphericParticle);
+            KRATOS_SERIALIZE_LOAD_BASE_CLASS(rSerializer, SphericContinuumParticle);
         }
 
-    }; // Class ContactInfoSphericParticle
+    }; // Class ContactInfoContinuumSphericParticle
 
     /// input stream function
-    inline std::istream& operator >> (std::istream& rIStream, ContactInfoSphericParticle& rThis){return rIStream;}
+    inline std::istream& operator >> (std::istream& rIStream, ContactInfoContinuumSphericParticle& rThis){return rIStream;}
 
     /// output stream function
-    inline std::ostream& operator << (std::ostream& rOStream, const ContactInfoSphericParticle& rThis)
+    inline std::ostream& operator << (std::ostream& rOStream, const ContactInfoContinuumSphericParticle& rThis)
     {
         rThis.PrintInfo(rOStream);
         rOStream << std::endl;
@@ -123,6 +123,6 @@ namespace Kratos {
         return rOStream;
     }
 
-}  // namespace Kratos
+}  // namespace Kratos.
 
-#endif // KRATOS_CONTACT_INFO_SPHERIC_PARTICLE_H_INCLUDED  defined
+#endif // KRATOS_CONTACT_INFO_CONTINUUM_SPHERIC_PARTICLE_H_INCLUDED  defined
