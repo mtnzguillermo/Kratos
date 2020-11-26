@@ -152,7 +152,7 @@ int TrussFICElementLinear3D2N::Check(const ProcessInfo& rCurrentProcessInfo) con
     //     KRATOS_ERROR << "Rayleigh Alpha and Rayleigh Beta are zero and this element needs the damping matrix (estimated with the rayleigh method) to be different from zero." << std::endl;
     // }
 
-    // return ierr;
+    return ierr;
 
     KRATOS_CATCH("")
 }
