@@ -22,27 +22,33 @@ namespace Kratos {
         DEMDiscontinuumConstitutiveLaw::Check(pProp);
         if(!pProp->Has(CONICAL_DAMAGE_CONTACT_RADIUS)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_CONTACT_RADIUS should be present in the properties when using DEM_continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_CONTACT_RADIUS should be present in the properties when using DEM_Continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_CONTACT_RADIUS) = 0.0;
         }
         if(!pProp->Has(CONICAL_DAMAGE_MAX_STRESS)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_MAX_STRESS should be present in the properties when using DEM_continuum_Conical_damage. 1.0e20 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_MAX_STRESS should be present in the properties when using DEM_Continuum_Conical_damage. 1.0e20 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_MAX_STRESS) = 1.0e20;
         }
         if(!pProp->Has(CONICAL_DAMAGE_ALPHA)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_ALPHA should be present in the properties when using DEM_continuum_Conical_damage. 90.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_ALPHA should be present in the properties when using DEM_Continuum_Conical_damage. 90.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_ALPHA) = 90.0;
         }
         if(!pProp->Has(CONICAL_DAMAGE_GAMMA)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_GAMMA should be present in the properties when using DEM_continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_GAMMA should be present in the properties when using DEM_Continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_GAMMA) = 0.0;
+        }
+        if(!pProp->Has(LEVEL_OF_FOULING)) {
+            KRATOS_WARNING("DEM")<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable LEVEL_OF_FOULING should be present in the properties when using DEM_Continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<std::endl;
+            pProp->GetValue(LEVEL_OF_FOULING) = 0.0;
         }
     }
 

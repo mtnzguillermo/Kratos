@@ -44,6 +44,12 @@ namespace Kratos {
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_GAMMA) = 0.0;
         }
+        if(!pProp->Has(LEVEL_OF_FOULING)) {
+            KRATOS_WARNING("DEM")<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable LEVEL_OF_FOULING should be present in the properties when using DEM_D_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<std::endl;
+            pProp->GetValue(LEVEL_OF_FOULING) = 0.0;
+        }
     }
 
     std::string DEM_D_Conical_damage::GetTypeOfLaw() {
