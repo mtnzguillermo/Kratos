@@ -158,12 +158,46 @@ void SmallDisplacementExplicitSplitScheme::AddExplicitContribution(
     Vector internal_forces = ZeroVector(element_size);
     this->CalculateInternalForces(internal_forces,rCurrentProcessInfo);
 
+    // VectorType displacement_vector(element_size);
+    // GetValuesVector(displacement_vector);
+
+    // VectorType k_a(element_size);
+    // MatrixType stiffness_matrix( element_size, element_size );
+    // noalias(stiffness_matrix) = ZeroMatrix(element_size,element_size);
+    // this->CalculateLeftHandSide(stiffness_matrix, rCurrentProcessInfo);
+    // noalias(k_a) = prod(stiffness_matrix,displacement_vector);
+
+    // VectorType k_hat_a(element_size);
+    // MatrixType non_diagonal_stiffness_matrix( element_size, element_size );
+    // noalias(non_diagonal_stiffness_matrix) = ZeroMatrix(element_size,element_size);
+    // this->CalculateLeftHandSide(non_diagonal_stiffness_matrix, rCurrentProcessInfo);
+    // for (IndexType i = 0; i < element_size; ++i)
+    //     non_diagonal_stiffness_matrix(i,i) = 0.0;
+    // noalias(k_hat_a) = prod(non_diagonal_stiffness_matrix,displacement_vector);
+
+    // VectorType element_mass_vector(element_size);
+    // this->CalculateLumpedMassVector(element_mass_vector);
+    // VectorType M_d_a(element_size);
+    // MatrixType diagonal_mass_matrix( element_size, element_size );
+    // noalias(diagonal_mass_matrix) = ZeroMatrix(element_size,element_size);
+    // for (IndexType i = 0; i < element_size; ++i)
+    //     diagonal_mass_matrix(i,i) = element_mass_vector[i];
+    // noalias(M_d_a) = prod(diagonal_mass_matrix,displacement_vector);
+
+    // VectorType k_d_a(element_size);
+    // MatrixType diagonal_stiffness_matrix( element_size, element_size );
+    // noalias(diagonal_stiffness_matrix) = ZeroMatrix(element_size,element_size);
+    // for (IndexType i = 0; i < element_size; ++i)
+    //     diagonal_stiffness_matrix(i,i) = stiffness_matrix(i,i);
+    // noalias(k_d_a) = prod(diagonal_stiffness_matrix,displacement_vector);
+
     // Computing the force residual
     if (rRHSVariable == RESIDUAL_VECTOR && rDestinationVariable == FORCE_RESIDUAL) {
         for (IndexType i = 0; i < number_of_nodes; ++i) {
             const IndexType index = dimension * i;
             array_1d<double, 3>& r_external_forces = GetGeometry()[i].FastGetSolutionStepValue(FORCE_RESIDUAL);
             array_1d<double, 3>& r_internal_forces = GetGeometry()[i].FastGetSolutionStepValue(NODAL_INERTIA);
+            // array_1d<double, 3>& r_k_hat_a = GetGeometry()[i].FastGetSolutionStepValue(FRACTIONAL_ACCELERATION);
 
             for (IndexType j = 0; j < dimension; ++j) {
                 #pragma omp atomic
@@ -171,6 +205,9 @@ void SmallDisplacementExplicitSplitScheme::AddExplicitContribution(
 
                 #pragma omp atomic
                 r_internal_forces[j] += internal_forces[index + j];
+
+                // #pragma omp atomic
+                // r_k_hat_a[j] += k_hat_a[index + j];
             }
         }
     }
