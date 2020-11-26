@@ -164,14 +164,7 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::CalculateLocalSystem(
         this->AddTangentialSymmetricCounterpartContribution(rLeftHandSideMatrix, rRightHandSideVector, data); // NOTE: IMPLEMENT THE SKEW-SYMMETRIC ADJOINT IF IT IS NEEDED IN THE FUTURE. CREATE A IS_SKEW_SYMMETRIC ELEMENTAL FLAG.
     } else if (data.IsIncised()) {
         // TODO: do extra stuff
-
-        // for testing:
-        double test_value = -2.0;
-        test_value -= data.EdgeDistances[2];
-        for (int i = 0; i < 9; ++i)
-        {
-            rRightHandSideVector[i] = test_value++;
-        }
+        this->AddVelocityGradientPenalty(rLeftHandSideMatrix, rRightHandSideVector, data);
     }
 }
 
@@ -344,6 +337,68 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::DefineIncisedGeometryD
     */
 }
 
+template <class TBaseElement>
+void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::AddVelocityGradientPenalty(
+    MatrixType& rLHS,
+    VectorType& rRHS,
+    const EmbeddedDiscontinuousEdgeElementData& rData) const
+{
+    // Obtain the previous iteration velocity solution
+    /*array_1d<double,LocalSize> values;
+    this->GetCurrentValuesVector(rData, values);
+
+    // Substract the embedded nodal velocity to the previous iteration solution
+    const auto &r_geom = this->GetGeometry();
+    for (unsigned int i_node = 0; i_node < NumNodes; ++i_node) {
+        const auto &r_i_emb_vel = r_geom[i_node].GetValue(EMBEDDED_VELOCITY);
+        for (unsigned int d = 0; d < Dim; ++d) {
+            values(i_node * BlockSize + d) -= r_i_emb_vel(d);
+        }
+    }*/
+
+    // Compute penalty coefficient for velocity gradient penalization
+    const double pen_coef = this->ComputeVelGradPenaltyCoefficient(rData);
+    KRATOS_WATCH(pen_coef);
+
+    // penalty_term = integral-areaOrvol (penalty_const * SF *vel_grad)
+
+}
+
+template <class TBaseElement>
+double EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::ComputeVelGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const
+{
+    // Get user-defined penalization constant
+    const double c_p = 1.0; //rData.VelGradPenaltyCoefficient; //TODO: make user defined
+
+    // Compute the element average velocity norm // TODO: include mesh velocity?
+    double v_norm = 0.0;
+    for (uint8_t comp = 0; comp < Dim; ++comp){
+        double aux_vel = 0.0;
+        for (unsigned int j = 0; j < NumNodes; ++j){
+            aux_vel += rData.Velocity(j,comp);
+        }
+        aux_vel /= NumNodes;
+        v_norm += aux_vel*aux_vel;
+    }
+    v_norm = std::sqrt(v_norm);
+
+    // Calculate penality coefficient // TODO: use effective viscosity?
+    const double h = rData.ElementSize;
+    const double d = rData.Dim;
+    const double rho = rData.Density;
+    const double mu = rData.DynamicViscosity;
+    double vol = 0.0;
+    const auto &r_geom = this->GetGeometry();
+    if (Dim == 2){
+        vol = rData.CalculateElementArea(r_geom);
+    } else {
+        vol = rData.CalculateElementVolume(r_geom);
+    }
+    const double penalty_coef = c_p * ( mu * std::pow(h, d-1.0) + rho * v_norm * std::pow(h, d) ) / vol;
+
+    return penalty_coef;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Private functions
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -418,7 +473,7 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::CalculateDragForce(
         }
     } else if (rData.IsIncised()) {
         // TODO: do stuff
-        KRATOS_WATCH("in incised CalculateDragForce");
+        // KRATOS_WATCH("in incised CalculateDragForce");
     }
 }
 

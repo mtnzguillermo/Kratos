@@ -16,6 +16,8 @@
 #include "fluid_dynamics_application_variables.h"
 #include "custom_utilities/fluid_element_data.h"
 #include "custom_utilities/embedded_discontinuous_data.h"
+#include "geometries/geometry.h"
+#include "utilities/math_utils.h"
 
 namespace Kratos {
 
@@ -44,6 +46,8 @@ using typename EmbeddedDiscontinuousData<TFluidData>::InterfaceNormalsType;
 ///@}
 ///@name Public Members
 ///@{
+
+double VelGradPenaltyCoefficient;
 
 constexpr static unsigned int NumEdges = (TFluidData::Dim - 1) * 3;
 
@@ -77,6 +81,19 @@ void Initialize(
 }
 
 /**
+ * @brief Fills the boundary condition data fields
+ * This method needs to be called in cut elements. It fills the data structure fields related to the boundary
+ * condition imposition (slip length and penalty coefficient) by retrieving their value from the ProcessInfo.
+ * @param rProcessInfo
+ */
+virtual void InitializeBoundaryConditionData(const ProcessInfo& rProcessInfo) override
+{
+    EmbeddedDiscontinuousData<TFluidData>::InitializeBoundaryConditionData(rProcessInfo);
+    // TODO
+    //this->FillFromProcessInfo(VelGradPenaltyCoefficient, VEL_GRAD_PENALTY_COEFFICIENT, rProcessInfo);
+}
+
+/**
  * @brief Discontinous embedded formulation data container check
  * Simple discontinuous embedded formulation data container check. The base formulation data container is
  * checked as well. Returns 0 if the check process succeeds.
@@ -90,6 +107,7 @@ static int Check(
 {
     KRATOS_CHECK_VARIABLE_KEY(SLIP_LENGTH);
     KRATOS_CHECK_VARIABLE_KEY(PENALTY_COEFFICIENT);
+    //KRATOS_CHECK_VARIABLE_KEY(VEL_GRAD_PENALTY_COEFFICIENT); //TODO
     KRATOS_CHECK_VARIABLE_KEY(ELEMENTAL_DISTANCES);
     KRATOS_CHECK_VARIABLE_KEY(ELEMENTAL_EDGE_DISTANCES);
 
@@ -103,10 +121,64 @@ static int Check(
  * @return true if the element is incised
  * @return false if the element is not incised
  */
-bool IsIncised()
+const bool IsIncised()
 {
     return (0 < NumPositiveEdges && NumPositiveEdges < TFluidData::Dim);
 }
+
+/**
+ * @brief Calculates area of a triangular element
+ * @param rGeometry the geometry of the element
+ * @return area of triangular element
+ */
+const double CalculateElementArea(const Geometry<Node<3> >& rGeometry) const
+{
+    // calculate edge vectors
+    const double x10 = rGeometry[1].X() - rGeometry[0].X();
+    const double y10 = rGeometry[1].Y() - rGeometry[0].Y();
+
+    const double x20 = rGeometry[2].X() - rGeometry[0].X();
+    const double y20 = rGeometry[2].Y() - rGeometry[0].Y();
+
+    //calculate components of cross product
+    const double c3 = x10 * y20 - y10 * x20;
+
+    // return area
+    return ( 0.5 * std::abs(c3) );
+}
+
+/**
+ * @brief Calculates volume of a tetrahedral element
+ * @param rGeometry the geometry of the element
+ * @return volume of tetrahedral element
+ */
+const double CalculateElementVolume(const Geometry<Node<3> >& rGeometry) const
+{
+    // calculate edge vectors
+    const double x10 = rGeometry[1].X() - rGeometry[0].X();
+    const double y10 = rGeometry[1].Y() - rGeometry[0].Y();
+    const double z10 = rGeometry[1].Z() - rGeometry[0].Z();
+
+    const double x20 = rGeometry[2].X() - rGeometry[0].X();
+    const double y20 = rGeometry[2].Y() - rGeometry[0].Y();
+    const double z20 = rGeometry[2].Z() - rGeometry[0].Z();
+
+    const double x30 = rGeometry[3].X() - rGeometry[0].X();
+    const double y30 = rGeometry[3].Y() - rGeometry[0].Y();
+    const double z30 = rGeometry[3].Z() - rGeometry[0].Z();
+
+    //calculate components of cross product
+    const double c1 = y10 * z20 - z10 * y20;
+    const double c2 = z10 * x20 - x10 * z20;
+    const double c3 = x10 * y20 - y10 * x20;
+
+    //calculate dot product
+    const double d = c1 * x30 + c2 * y30 + c3 * z30;
+
+    // return volume
+    return ( 1.0/6.0 * std::abs(d) );
+}
+
 
 ///@}
 

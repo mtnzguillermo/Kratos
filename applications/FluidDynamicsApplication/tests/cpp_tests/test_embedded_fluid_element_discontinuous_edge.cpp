@@ -201,15 +201,12 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
 
     std::vector< std::vector<double> > output_incised(6);
     // --> right now: should print and get same values as uncut element
-    //output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
-    //output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
-    output_incised[0] = {-2.2, -1.2, -0.2, 0.8, 1.8, 2.8, 3.8, 4.8, 5.8}; // EmbeddedSymbolicNavierStokesDiscontinuous
-    output_incised[1] = {-2.2, -1.2, -0.2, 0.8, 1.8, 2.8, 3.8, 4.8, 5.8}; // EmbeddedQSVMSDiscontinuous
-    counter = 0;
+    output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
+    output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
 
     counter = 0;
 
-    // Test incised element
+    // Test incised element (one edge is cut)
     elem_dist[0] =  0.2;
     elem_dist[1] =  0.5;
     elem_dist[2] =  1.0;
@@ -219,6 +216,7 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     for (auto it_elem = model_part.ElementsBegin(); it_elem != model_part.ElementsEnd(); ++it_elem) {
         it_elem->SetValue(ELEMENTAL_DISTANCES, elem_dist);
         it_elem->SetValue(ELEMENTAL_EDGE_DISTANCES, edge_dist);
+        //it_elem->SetValue(VEL_GRAD_PENALTY_COEFFICIENT, 1.0);
     }
 
     for (ModelPart::ElementIterator i = model_part.ElementsBegin(); i != model_part.ElementsEnd(); i++) {
@@ -226,6 +224,8 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
 
         // std::cout << i->Info() << std::setprecision(10) << std::endl;
         // KRATOS_WATCH(RHS);
+
+        //penalty coefficient of velocity gradient should be 223.607!
 
         for (unsigned int j = 0; j < RHS.size(); j++) {
             KRATOS_CHECK_NEAR(RHS[j], output_incised[counter][j], 1e-6);

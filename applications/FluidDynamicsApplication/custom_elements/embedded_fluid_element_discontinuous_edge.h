@@ -272,6 +272,25 @@ protected:
      */
     void DefineIncisedGeometryData(EmbeddedDiscontinuousEdgeElementData& rData) const;
 
+    /**
+    * This method adds a penalization for velocity gradients in incised elements.
+    * @param rLHS reference to the LHS matrix
+    * @param rRHS reference to the RHS vector
+    * @param rData reference to element data structure
+    */
+    void AddVelocityGradientPenalty(
+        MatrixType& rLHS,
+        VectorType& rRHS,
+        const EmbeddedDiscontinuousEdgeElementData& rData) const;
+
+    /**
+    * This method computes the penalty coefficient for the velocity gradient in incised elements
+    * Works only for triangle and tetrahedron!
+    * @param rData reference to element data structure
+    */
+    double ComputeVelGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const;
+
+
     ///@}
     ///@name Protected  Access
     ///@{
