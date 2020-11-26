@@ -164,6 +164,7 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::CalculateLocalSystem(
         this->AddTangentialSymmetricCounterpartContribution(rLeftHandSideMatrix, rRightHandSideVector, data); // NOTE: IMPLEMENT THE SKEW-SYMMETRIC ADJOINT IF IT IS NEEDED IN THE FUTURE. CREATE A IS_SKEW_SYMMETRIC ELEMENTAL FLAG.
     } else if (data.IsIncised()) {
         // TODO: do extra stuff
+        data.InitializeBoundaryConditionData(rCurrentProcessInfo);
         this->AddVelocityGradientPenalty(rLeftHandSideMatrix, rRightHandSideVector, data);
     }
 }
@@ -368,7 +369,7 @@ template <class TBaseElement>
 double EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::ComputeVelGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const
 {
     // Get user-defined penalization constant
-    const double c_p = 1.0; //rData.VelGradPenaltyCoefficient; //TODO: make user defined
+    const double c_p = rData.VelGradPenaltyCoefficient;
 
     // Compute the element average velocity norm // TODO: include mesh velocity?
     double v_norm = 0.0;

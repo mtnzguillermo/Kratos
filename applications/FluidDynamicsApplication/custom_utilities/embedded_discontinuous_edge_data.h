@@ -89,8 +89,7 @@ void Initialize(
 virtual void InitializeBoundaryConditionData(const ProcessInfo& rProcessInfo) override
 {
     EmbeddedDiscontinuousData<TFluidData>::InitializeBoundaryConditionData(rProcessInfo);
-    // TODO
-    //this->FillFromProcessInfo(VelGradPenaltyCoefficient, VEL_GRAD_PENALTY_COEFFICIENT, rProcessInfo);
+    this->FillFromProcessInfo(VelGradPenaltyCoefficient, V_GRAD_PENALTY_COEFFICIENT, rProcessInfo);
 }
 
 /**
@@ -107,7 +106,7 @@ static int Check(
 {
     KRATOS_CHECK_VARIABLE_KEY(SLIP_LENGTH);
     KRATOS_CHECK_VARIABLE_KEY(PENALTY_COEFFICIENT);
-    //KRATOS_CHECK_VARIABLE_KEY(VEL_GRAD_PENALTY_COEFFICIENT); //TODO
+    KRATOS_CHECK_VARIABLE_KEY(V_GRAD_PENALTY_COEFFICIENT);
     KRATOS_CHECK_VARIABLE_KEY(ELEMENTAL_DISTANCES);
     KRATOS_CHECK_VARIABLE_KEY(ELEMENTAL_EDGE_DISTANCES);
 

@@ -207,6 +207,8 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     counter = 0;
 
     // Test incised element (one edge is cut)
+    model_part.GetProcessInfo().SetValue(V_GRAD_PENALTY_COEFFICIENT, 1.0);
+
     elem_dist[0] =  0.2;
     elem_dist[1] =  0.5;
     elem_dist[2] =  1.0;
@@ -216,7 +218,6 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     for (auto it_elem = model_part.ElementsBegin(); it_elem != model_part.ElementsEnd(); ++it_elem) {
         it_elem->SetValue(ELEMENTAL_DISTANCES, elem_dist);
         it_elem->SetValue(ELEMENTAL_EDGE_DISTANCES, edge_dist);
-        //it_elem->SetValue(VEL_GRAD_PENALTY_COEFFICIENT, 1.0);
     }
 
     for (ModelPart::ElementIterator i = model_part.ElementsBegin(); i != model_part.ElementsEnd(); i++) {
