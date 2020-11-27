@@ -125,12 +125,12 @@ const bool IsIncised()
     return (0 < NumPositiveEdges && NumPositiveEdges < TFluidData::Dim);
 }
 
-/**
+/** TODO: does a function like this already exist?
  * @brief Calculates area of a triangular element
  * @param rGeometry the geometry of the element
  * @return area of triangular element
  */
-const double CalculateElementArea(const Geometry<Node<3> >& rGeometry) const
+const double CalculateTriangleArea(const Geometry<Node<3> >& rGeometry) const
 {
     // calculate edge vectors
     const double x10 = rGeometry[1].X() - rGeometry[0].X();
@@ -146,12 +146,12 @@ const double CalculateElementArea(const Geometry<Node<3> >& rGeometry) const
     return ( 0.5 * std::abs(c3) );
 }
 
-/**
+/** TODO: does a function like this already exist?
  * @brief Calculates volume of a tetrahedral element
  * @param rGeometry the geometry of the element
  * @return volume of tetrahedral element
  */
-const double CalculateElementVolume(const Geometry<Node<3> >& rGeometry) const
+const double CalculateTetrahedronVolume(const Geometry<Node<3> >& rGeometry) const
 {
     // calculate edge vectors
     const double x10 = rGeometry[1].X() - rGeometry[0].X();

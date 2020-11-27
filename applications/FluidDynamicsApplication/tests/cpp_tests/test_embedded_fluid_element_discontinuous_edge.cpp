@@ -200,14 +200,14 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     }
 
     std::vector< std::vector<double> > output_incised(6);
-    // --> right now: should print and get same values as uncut element
+    // with V_GRAD_PENALTY_COEFFICIENT=0.0: should print and get same values as uncut element
     output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
     output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
 
     counter = 0;
 
     // Test incised element (one edge is cut)
-    model_part.GetProcessInfo().SetValue(V_GRAD_PENALTY_COEFFICIENT, 1.0);
+    model_part.GetProcessInfo().SetValue(V_GRAD_PENALTY_COEFFICIENT, 0.0);
 
     elem_dist[0] =  0.2;
     elem_dist[1] =  0.5;

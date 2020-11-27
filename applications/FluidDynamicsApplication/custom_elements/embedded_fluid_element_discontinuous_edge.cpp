@@ -129,6 +129,7 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::CalculateLocalSystem(
         this->AddTimeIntegratedSystem(data, rLeftHandSideMatrix, rRightHandSideVector);
     }
 
+    // TODO: why isn't this only done for isCut?
     // Iterate over the negative side volume integration points
     const unsigned int number_of_negative_gauss_points = data.NegativeSideWeights.size();
     for (unsigned int g = 0; g < number_of_negative_gauss_points; ++g){
@@ -262,7 +263,7 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::InitializeGeometryData
             rData.PositiveEdgeIndices.push_back(i);
         }
     }
-    KRATOS_WATCH(rData.NumPositiveEdges);
+    //KRATOS_WATCH(rData.NumPositiveEdges);
 
     if (rData.IsCut()){
         this->DefineCutGeometryData(rData);
@@ -278,64 +279,6 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::DefineIncisedGeometryD
 {
     // call standard geometry definition to make element work like EmbeddedFluidElementDiscontinuous
     this->DefineStandardGeometryData(rData);
-    KRATOS_WATCH("is incised!");
-
-    /* TODO
-    For intersected element:
-    // Auxiliary distance vector for the element subdivision utility
-    Vector elemental_distances = rData.ElementalDistances;
-
-    ModifiedShapeFunctions::Pointer p_calculator =
-        EmbeddedDiscontinuousInternals::GetShapeFunctionCalculator<EmbeddedDiscontinuousElementData::Dim, EmbeddedDiscontinuousElementData::NumNodes>(
-            *this,
-            elemental_distances);
-
-    // Positive side volume
-    p_calculator->ComputePositiveSideShapeFunctionsAndGradientsValues(
-        rData.PositiveSideN,
-        rData.PositiveSideDNDX,
-        rData.PositiveSideWeights,
-        GeometryData::GI_GAUSS_2);
-
-    // Negative side volume
-    p_calculator->ComputeNegativeSideShapeFunctionsAndGradientsValues(
-        rData.NegativeSideN,
-        rData.NegativeSideDNDX,
-        rData.NegativeSideWeights,
-        GeometryData::GI_GAUSS_2);
-
-    // Positive side interface
-    p_calculator->ComputeInterfacePositiveSideShapeFunctionsAndGradientsValues(
-        rData.PositiveInterfaceN,
-        rData.PositiveInterfaceDNDX,
-        rData.PositiveInterfaceWeights,
-        GeometryData::GI_GAUSS_2);
-
-    // Negative side interface
-    p_calculator->ComputeInterfaceNegativeSideShapeFunctionsAndGradientsValues(
-        rData.NegativeInterfaceN,
-        rData.NegativeInterfaceDNDX,
-        rData.NegativeInterfaceWeights,
-        GeometryData::GI_GAUSS_2);
-
-    // Positive side interface normals
-    p_calculator->ComputePositiveSideInterfaceAreaNormals(
-        rData.PositiveInterfaceUnitNormals,
-        GeometryData::GI_GAUSS_2);
-
-    // Negative side interface normals
-    p_calculator->ComputeNegativeSideInterfaceAreaNormals(
-        rData.NegativeInterfaceUnitNormals,
-        GeometryData::GI_GAUSS_2);
-
-    // Normalize the normals
-    // Note: we calculate h here (and we don't use the value in rData.ElementSize)
-    // because rData.ElementSize might still be uninitialized: some data classes define it at the Gauss point.
-    double h = ElementSizeCalculator<Dim,NumNodes>::MinimumElementSize(this->GetGeometry());
-    const double tolerance = std::pow(1e-3 * h, Dim-1);
-    this->NormalizeInterfaceNormals(rData.PositiveInterfaceUnitNormals, tolerance);
-    this->NormalizeInterfaceNormals(rData.NegativeInterfaceUnitNormals, tolerance);
-    */
 }
 
 template <class TBaseElement>
@@ -344,8 +287,12 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::AddVelocityGradientPen
     VectorType& rRHS,
     const EmbeddedDiscontinuousEdgeElementData& rData) const
 {
+    // Compute penalty coefficient for velocity gradient penalization
+    const double pen_coef = this->ComputeVelGradPenaltyCoefficient(rData);
+    //KRATOS_WATCH(pen_coef);
+
     // Obtain the previous iteration velocity solution
-    /*array_1d<double,LocalSize> values;
+    array_1d<double,LocalSize> values;
     this->GetCurrentValuesVector(rData, values);
 
     // Substract the embedded nodal velocity to the previous iteration solution
@@ -355,14 +302,94 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::AddVelocityGradientPen
         for (unsigned int d = 0; d < Dim; ++d) {
             values(i_node * BlockSize + d) -= r_i_emb_vel(d);
         }
+    }
+
+    // penalization = integral (penalty_coeff * SF *vel_grad) dV
+    // Iterate over the positive side volume integration points - TODO: sufficient for standard element?
+    const unsigned int number_of_positive_gauss_points = rData.PositiveSideWeights.size();
+    for (unsigned int g = 0; g < number_of_positive_gauss_points; ++g){
+        const double weight = rData.PositiveSideWeights[g];
+        const auto aux_N = row(rData.PositiveSideN, g);
+        const BoundedMatrix<double, NumNodes, Dim> aux_DNDX = rData.PositiveSideDNDX[g];
+
+        // Calculate velocity gradient //TODO: correct way to get velocity gradient?
+        array_1d<double,Dim> vel_grad = ZeroVector(Dim);
+        for (unsigned int i_node = 0; i_node < NumNodes; ++i_node) {
+            //const array_1d<double, 3 > & r_velocity = r_geom[i_node].FastGetSolutionStepValue(VELOCITY);
+            for (unsigned int d = 0; d < Dim; ++d) {
+                //vel_grad[d] += r_velocity(d) * aux_DNDX(i_node,d);
+                vel_grad[d] +=  values(i_node * BlockSize + d) * aux_DNDX(i_node,d);
+            }
+        }
+
+        // Compute the Gauss point contribution, add to LHS and RHS - TODO: correct?
+        for (unsigned int i = 0; i < NumNodes; ++i){
+            for (unsigned int j = 0; j < NumNodes; ++j){
+                for (unsigned int m = 0; m < Dim; ++m){
+                    //penalty += pen_coef * vel_grad[m] * weight * aux_N(i);
+                    const unsigned int row = i * BlockSize + m;
+                    for (unsigned int n = 0; n < Dim; ++n){
+                        const unsigned int col = j * BlockSize + n;
+                        // penalty
+                        //const double aux = pen_coef * vel_grad[n]*vel_grad[m] * weight*r_N(i)*r_N(j);
+                        const double aux = pen_coef * weight * ( vel_grad[m] * aux_N(i) + vel_grad[n] * aux_N(j) );
+                        // residualbased formulation --> RHS is f_gamma - LHS*prev_sol
+                        rLHS(row, col) += aux;
+                        rRHS(row) -= aux*values(col);
+                    }
+                }
+            }
+        }
+    }
+
+    // Obtain the previous iteration velocity solution
+    /*array_1d<double,LocalSize> values;
+    this->GetCurrentValuesVector(rData, values);
+
+    BoundedMatrix<double, LocalSize, LocalSize> aux_LHS = ZeroMatrix(LocalSize, LocalSize);
+
+    // Set the shape functions auxiliar matrices
+        BoundedMatrix<double, Dim, LocalSize> N_mat = ZeroMatrix(Dim, LocalSize);
+        for (unsigned int i = 0; i < NumNodes; ++i){
+            for (unsigned int comp = 0; comp < Dim; ++comp){
+                N_mat(comp, i*BlockSize + comp) = aux_N(i);
+            }
+        }
+        BoundedMatrix<double, LocalSize, Dim> N_mat_trans = trans(N_mat);
+
+        // Contribution coming from the traction vector tangencial component
+        noalias(aux_LHS) += pen_coefs.first*weight*prod(N_mat_trans, aux_matrix_PtangACB);
+
+    // LHS assembly
+    noalias(rLHS) += aux_LHS;
+
+    // RHS assembly, because of residualbased formulation, the RHS is f_gamma - LHS*prev_sol
+    noalias(rRHS) -= prod(aux_LHS_1, values);*/
+
+    // Iterate over the negative side volume integration points
+    /*const unsigned int number_of_negative_gauss_points = data.NegativeSideWeights.size();
+    for (unsigned int g = 0; g < number_of_negative_gauss_points; ++g){
+        const size_t gauss_pt_index = g + number_of_positive_gauss_points;
+        const double weight = rData.NegativeSideWeights[g];
+        const auto aux_N = row(rData.NegativeSideN, g);
+        //rData.NegativeSideDNDX[g];
+
+        // Compute the Gauss pt. LHS contribution
+        for (unsigned int i = 0; i < NumNodes; ++i){
+            for (unsigned int j = 0; j < NumNodes; ++j){
+                for (unsigned int m = 0; m < Dim; ++m){
+                    const unsigned int row = i * BlockSize + m;
+                    for (unsigned int n = 0; n < Dim; ++n){
+                        const unsigned int col = j * BlockSize + n;
+                        const double vel_grad = 0.0;  // values(row)*aux_DNDX(i) + values(col)*aux_DNDX(j);
+                        const double aux = pen_coef*vel_grad * weight*aux_N(i)*aux_unit_normal(m)*aux_unit_normal(n)*aux_N(j);
+                        rLHS(row, col) += aux;
+                        rRHS(row) -= aux*values(col);
+                    }
+                }
+            }
+        }
     }*/
-
-    // Compute penalty coefficient for velocity gradient penalization
-    const double pen_coef = this->ComputeVelGradPenaltyCoefficient(rData);
-    KRATOS_WATCH(pen_coef);
-
-    // penalty_term = integral-areaOrvol (penalty_const * SF *vel_grad)
-
 }
 
 template <class TBaseElement>
@@ -376,7 +403,7 @@ double EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::ComputeVelGradPenalt
     for (uint8_t comp = 0; comp < Dim; ++comp){
         double aux_vel = 0.0;
         for (unsigned int j = 0; j < NumNodes; ++j){
-            aux_vel += rData.Velocity(j,comp);
+            aux_vel += rData.Velocity(j,comp); //TODO: add ( -rData.MeshVelocity(j,comp) )?
         }
         aux_vel /= NumNodes;
         v_norm += aux_vel*aux_vel;
@@ -389,11 +416,10 @@ double EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::ComputeVelGradPenalt
     const double rho = rData.Density;
     const double mu = rData.DynamicViscosity;
     double vol = 0.0;
-    const auto &r_geom = this->GetGeometry();
     if (Dim == 2){
-        vol = rData.CalculateElementArea(r_geom);
+        vol = rData.CalculateTriangleArea(this->GetGeometry());
     } else {
-        vol = rData.CalculateElementVolume(r_geom);
+        vol = rData.CalculateTetrahedronVolume(this->GetGeometry());
     }
     const double penalty_coef = c_p * ( mu * std::pow(h, d-1.0) + rho * v_norm * std::pow(h, d) ) / vol;
 
