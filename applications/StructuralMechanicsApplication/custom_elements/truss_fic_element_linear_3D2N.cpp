@@ -111,10 +111,30 @@ void TrussFICElementLinear3D2N::AddExplicitContribution(
         BoundedVector<double, msLocalSize> internal_forces = ZeroVector(msLocalSize);
         UpdateInternalForces(internal_forces);
 
+        Vector current_disp = ZeroVector(msLocalSize);
+        GetValuesVector(current_disp);
+
+        // Vector k_a(msLocalSize);
+        // Matrix stiffness_matrix( msLocalSize, msLocalSize );
+        // noalias(stiffness_matrix) = CreateElementStiffnessMatrix(rCurrentProcessInfo);
+        // KRATOS_WATCH(this->Id())
+        // KRATOS_WATCH(stiffness_matrix)
+        // noalias(k_a) = prod(stiffness_matrix,current_disp);
+
+        Vector k_hat_a(msLocalSize);
+        Matrix non_diagonal_stiffness_matrix( msLocalSize, msLocalSize );
+        noalias(non_diagonal_stiffness_matrix) = CreateElementStiffnessMatrix(rCurrentProcessInfo);;
+        for (size_t i = 0; i < msLocalSize; ++i)
+            non_diagonal_stiffness_matrix(i,i) = 0.0;
+        noalias(k_hat_a) = prod(non_diagonal_stiffness_matrix,current_disp);
+
         for (size_t i = 0; i < msNumberOfNodes; ++i) {
             size_t index = msDimension * i;
             array_1d<double, 3>& r_external_forces = GetGeometry()[i].FastGetSolutionStepValue(FORCE_RESIDUAL);
             array_1d<double, 3>& r_internal_forces = GetGeometry()[i].FastGetSolutionStepValue(NODAL_INERTIA);
+            array_1d<double, 3>& r_k_hat_a = GetGeometry()[i].FastGetSolutionStepValue(MIDDLE_VELOCITY);
+            // array_1d<double, 3>& r_k_a = GetGeometry()[i].FastGetSolutionStepValue(FRACTIONAL_ANGULAR_ACCELERATION);
+
             for (size_t j = 0; j < msDimension; ++j) {
                 // rRHSVector = f-Ka
                 #pragma omp atomic
@@ -123,6 +143,11 @@ void TrussFICElementLinear3D2N::AddExplicitContribution(
                 #pragma omp atomic
                 r_internal_forces[j] += internal_forces[index + j];
 
+                #pragma omp atomic
+                r_k_hat_a[j] += k_hat_a[index + j];
+
+                // #pragma omp atomic
+                // r_k_a[j] += k_a[index + j];
             }
         }
     }
