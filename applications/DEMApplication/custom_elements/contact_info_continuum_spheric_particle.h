@@ -94,8 +94,6 @@ namespace Kratos {
 
         void ComputeNewRigidFaceNeighboursHistoricalData() override;
 
-        void ReorderAndRecoverInitialPositionsAndFilter(std::vector<SphericParticle*>& temp_neighbour_elements) override;
-
         private:
 
         friend class Serializer;

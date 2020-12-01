@@ -189,8 +189,6 @@ namespace Kratos
         mNeighbourRigidCohesion.swap(temp_cohesion);
     }
 
-    void ContactInfoContinuumSphericParticle::ReorderAndRecoverInitialPositionsAndFilter(std::vector<SphericParticle*>& temp_neighbour_elements) {}
-
     double ContactInfoContinuumSphericParticle::GetParticleInitialCohesion()            { return SphericContinuumParticle::GetFastProperties()->GetParticleInitialCohesion();            }
     double ContactInfoContinuumSphericParticle::GetAmountOfCohesionFromStress()         { return SphericContinuumParticle::GetFastProperties()->GetAmountOfCohesionFromStress();         }
     double ContactInfoContinuumSphericParticle::GetParticleConicalDamageContactRadius() { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageContactRadius(); }
