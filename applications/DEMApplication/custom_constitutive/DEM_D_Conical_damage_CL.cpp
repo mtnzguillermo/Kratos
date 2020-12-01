@@ -24,7 +24,7 @@ namespace Kratos {
             KRATOS_WARNING("DEM")<<std::endl;
             KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_CONTACT_RADIUS should be present in the properties when using DEM_D_Conical_damage. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
-            pProp->GetValue(CONICAL_DAMAGE_CONTACT_RADIUS) = 0.0;
+            pProp->GetValue(CONICAL_DAMAGE_CONTACT_RADIUS) = 0.05;
         }
         if(!pProp->Has(CONICAL_DAMAGE_MAX_STRESS)) {
             KRATOS_WARNING("DEM")<<std::endl;
