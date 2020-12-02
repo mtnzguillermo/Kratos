@@ -166,7 +166,7 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::CalculateLocalSystem(
     } else if (data.IsIncised()) {
         // TODO: do extra stuff
         data.InitializeBoundaryConditionData(rCurrentProcessInfo);
-        this->AddVelocityGradientPenalty(rLeftHandSideMatrix, rRightHandSideVector, data);
+        this->AddPressureGradientPenalty(rLeftHandSideMatrix, rRightHandSideVector, data);
     }
 }
 
@@ -282,20 +282,20 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::DefineIncisedGeometryD
 }
 
 template <class TBaseElement>
-void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::AddVelocityGradientPenalty(
+void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::AddPressureGradientPenalty(
     MatrixType& rLHS,
     VectorType& rRHS,
     const EmbeddedDiscontinuousEdgeElementData& rData) const
 {
     // Compute penalty coefficient for velocity gradient penalization
-    const double pen_coef = this->ComputeVelGradPenaltyCoefficient(rData);
-    //KRATOS_WATCH(pen_coef);
+    const double pen_coef = this->ComputePressureGradPenaltyCoefficient(rData);
+    //KRATOS_INFO("[INCISED] PressureGradientPenalty") << "pen_coef = " << pen_coef << std::endl;
 
     // Obtain the previous iteration velocity solution
     array_1d<double,LocalSize> values;
     this->GetCurrentValuesVector(rData, values);
 
-    // Substract the embedded nodal velocity to the previous iteration solution
+    // Substract the embedded nodal velocity from the previous iteration solution - TODO: wanted?
     const auto &r_geom = this->GetGeometry();
     for (unsigned int i_node = 0; i_node < NumNodes; ++i_node) {
         const auto &r_i_emb_vel = r_geom[i_node].GetValue(EMBEDDED_VELOCITY);
@@ -304,117 +304,65 @@ void EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::AddVelocityGradientPen
         }
     }
 
-    // penalization = integral (penalty_coeff * SF *vel_grad) dV
-    // Iterate over the positive side volume integration points - TODO: sufficient for standard element?
+    // Declare auxiliar LHS
+    BoundedMatrix<double, LocalSize, LocalSize> aux_LHS = ZeroMatrix(LocalSize, LocalSize);
+
+    // Iterate over the positive side volume integration points - TODO: correct for standard element?
     const unsigned int number_of_positive_gauss_points = rData.PositiveSideWeights.size();
     for (unsigned int g = 0; g < number_of_positive_gauss_points; ++g){
+        // Get Gauss point data
         const double weight = rData.PositiveSideWeights[g];
         const auto aux_N = row(rData.PositiveSideN, g);
         const BoundedMatrix<double, NumNodes, Dim> aux_DNDX = rData.PositiveSideDNDX[g];
 
-        // Calculate velocity gradient //TODO: correct way to get velocity gradient?
-        array_1d<double,Dim> vel_grad = ZeroVector(Dim);
-        for (unsigned int i_node = 0; i_node < NumNodes; ++i_node) {
-            //const array_1d<double, 3 > & r_velocity = r_geom[i_node].FastGetSolutionStepValue(VELOCITY);
-            for (unsigned int d = 0; d < Dim; ++d) {
-                //vel_grad[d] += r_velocity(d) * aux_DNDX(i_node,d);
-                vel_grad[d] +=  values(i_node * BlockSize + d) * aux_DNDX(i_node,d);
+        // Set the shape functions auxiliar matrix
+        BoundedMatrix<double, LocalSize, Dim> N_mat_trans = ZeroMatrix(LocalSize, Dim);
+        for (unsigned int i_node = 0; i_node < NumNodes; ++i_node){
+            for (unsigned int d = 0; d < Dim; ++d){
+                N_mat_trans(i_node*BlockSize + d, d) = aux_N(i_node);
             }
         }
 
-        // Compute the Gauss point contribution, add to LHS and RHS - TODO: correct?
-        for (unsigned int i = 0; i < NumNodes; ++i){
-            for (unsigned int j = 0; j < NumNodes; ++j){
-                for (unsigned int m = 0; m < Dim; ++m){
-                    //penalty += pen_coef * vel_grad[m] * weight * aux_N(i);
-                    const unsigned int row = i * BlockSize + m;
-                    for (unsigned int n = 0; n < Dim; ++n){
-                        const unsigned int col = j * BlockSize + n;
-                        // penalty
-                        //const double aux = pen_coef * vel_grad[n]*vel_grad[m] * weight*r_N(i)*r_N(j);
-                        const double aux = pen_coef * weight * ( vel_grad[m] * aux_N(i) + vel_grad[n] * aux_N(j) );
-                        // residualbased formulation --> RHS is f_gamma - LHS*prev_sol
-                        rLHS(row, col) += aux;
-                        rRHS(row) -= aux*values(col);
-                    }
-                }
+        // Set the pressure gradient auxiliar matrix
+        BoundedMatrix<double, Dim, LocalSize> p_DNDX = ZeroMatrix(Dim, LocalSize);
+        for (unsigned int i_node = 0; i_node < NumNodes; ++i_node){
+            for (unsigned int d = 0; d < Dim; ++d){
+                p_DNDX(d, Dim + i_node*BlockSize) = aux_DNDX(i_node, d);
             }
         }
+
+        // Calculate LHS penalty contribution of Gauss point
+        noalias(aux_LHS) += pen_coef*weight*prod(N_mat_trans, p_DNDX);
     }
 
-    // Obtain the previous iteration velocity solution
-    /*array_1d<double,LocalSize> values;
-    this->GetCurrentValuesVector(rData, values);
-
-    BoundedMatrix<double, LocalSize, LocalSize> aux_LHS = ZeroMatrix(LocalSize, LocalSize);
-
-    // Set the shape functions auxiliar matrices
-        BoundedMatrix<double, Dim, LocalSize> N_mat = ZeroMatrix(Dim, LocalSize);
-        for (unsigned int i = 0; i < NumNodes; ++i){
-            for (unsigned int comp = 0; comp < Dim; ++comp){
-                N_mat(comp, i*BlockSize + comp) = aux_N(i);
-            }
-        }
-        BoundedMatrix<double, LocalSize, Dim> N_mat_trans = trans(N_mat);
-
-        // Contribution coming from the traction vector tangencial component
-        noalias(aux_LHS) += pen_coefs.first*weight*prod(N_mat_trans, aux_matrix_PtangACB);
-
-    // LHS assembly
+    // LHS and RHS assembly - residualbased formulation: RHS is f_gamma - LHS*prev_sol
     noalias(rLHS) += aux_LHS;
-
-    // RHS assembly, because of residualbased formulation, the RHS is f_gamma - LHS*prev_sol
-    noalias(rRHS) -= prod(aux_LHS_1, values);*/
-
-    // Iterate over the negative side volume integration points
-    /*const unsigned int number_of_negative_gauss_points = data.NegativeSideWeights.size();
-    for (unsigned int g = 0; g < number_of_negative_gauss_points; ++g){
-        const size_t gauss_pt_index = g + number_of_positive_gauss_points;
-        const double weight = rData.NegativeSideWeights[g];
-        const auto aux_N = row(rData.NegativeSideN, g);
-        //rData.NegativeSideDNDX[g];
-
-        // Compute the Gauss pt. LHS contribution
-        for (unsigned int i = 0; i < NumNodes; ++i){
-            for (unsigned int j = 0; j < NumNodes; ++j){
-                for (unsigned int m = 0; m < Dim; ++m){
-                    const unsigned int row = i * BlockSize + m;
-                    for (unsigned int n = 0; n < Dim; ++n){
-                        const unsigned int col = j * BlockSize + n;
-                        const double vel_grad = 0.0;  // values(row)*aux_DNDX(i) + values(col)*aux_DNDX(j);
-                        const double aux = pen_coef*vel_grad * weight*aux_N(i)*aux_unit_normal(m)*aux_unit_normal(n)*aux_N(j);
-                        rLHS(row, col) += aux;
-                        rRHS(row) -= aux*values(col);
-                    }
-                }
-            }
-        }
-    }*/
+    noalias(rRHS) -= prod(aux_LHS, values);
 }
 
 template <class TBaseElement>
-double EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::ComputeVelGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const
+double EmbeddedFluidElementDiscontinuousEdge<TBaseElement>::ComputePressureGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const
 {
     // Get user-defined penalization constant
-    const double c_p = rData.VelGradPenaltyCoefficient;
+    const double c_p = rData.PressureGradPenaltyConstant;
 
-    // Compute the element average velocity norm // TODO: include mesh velocity?
+    // Compute the element average velocity norm
     double v_norm = 0.0;
     for (uint8_t comp = 0; comp < Dim; ++comp){
         double aux_vel = 0.0;
         for (unsigned int j = 0; j < NumNodes; ++j){
-            aux_vel += rData.Velocity(j,comp); //TODO: add ( -rData.MeshVelocity(j,comp) )?
+            aux_vel += rData.Velocity(j,comp) - rData.MeshVelocity(j,comp);
         }
         aux_vel /= NumNodes;
         v_norm += aux_vel*aux_vel;
     }
     v_norm = std::sqrt(v_norm);
 
-    // Calculate penality coefficient // TODO: use effective viscosity?
+    // Calculate penality coefficient
     const double h = rData.ElementSize;
     const double d = rData.Dim;
     const double rho = rData.Density;
-    const double mu = rData.DynamicViscosity;
+    const double mu = rData.EffectiveViscosity;
     double vol = 0.0;
     if (Dim == 2){
         vol = rData.CalculateTriangleArea(this->GetGeometry());

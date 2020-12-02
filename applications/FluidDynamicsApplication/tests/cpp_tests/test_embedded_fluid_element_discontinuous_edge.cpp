@@ -200,14 +200,15 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     }
 
     std::vector< std::vector<double> > output_incised(6);
-    // with V_GRAD_PENALTY_COEFFICIENT=0.0: should print and get same values as uncut element
+    // should print and get same values as uncut element, because pressure values are zero (previous solution step)
     output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
     output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
 
     counter = 0;
 
     // Test incised element (one edge is cut)
-    model_part.GetProcessInfo().SetValue(V_GRAD_PENALTY_COEFFICIENT, 0.0);
+    model_part.GetProcessInfo().SetValue(P_GRAD_PENALTY_CONSTANT, 1.0);
+    //for penalty constant 1.0: penalty coefficient of pressure gradient should be 223.607!
 
     elem_dist[0] =  0.2;
     elem_dist[1] =  0.5;
@@ -225,8 +226,6 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
 
         // std::cout << i->Info() << std::setprecision(10) << std::endl;
         // KRATOS_WATCH(RHS);
-
-        //penalty coefficient of velocity gradient should be 223.607!
 
         for (unsigned int j = 0; j < RHS.size(); j++) {
             KRATOS_CHECK_NEAR(RHS[j], output_incised[counter][j], 1e-6);

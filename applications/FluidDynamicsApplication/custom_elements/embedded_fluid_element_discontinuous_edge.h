@@ -274,11 +274,12 @@ protected:
 
     /**
     * This method adds a penalization for velocity gradients in incised elements.
+    * [penalization = volume_integral_of (dp_penalty_coefficient * N * pressure_DNDX)]
     * @param rLHS reference to the LHS matrix
     * @param rRHS reference to the RHS vector
     * @param rData reference to element data structure
     */
-    void AddVelocityGradientPenalty(
+    void AddPressureGradientPenalty(
         MatrixType& rLHS,
         VectorType& rRHS,
         const EmbeddedDiscontinuousEdgeElementData& rData) const;
@@ -288,7 +289,7 @@ protected:
     * Works only for triangle and tetrahedron!
     * @param rData reference to element data structure
     */
-    double ComputeVelGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const;
+    double ComputePressureGradPenaltyCoefficient(const EmbeddedDiscontinuousEdgeElementData& rData) const;
 
 
     ///@}
