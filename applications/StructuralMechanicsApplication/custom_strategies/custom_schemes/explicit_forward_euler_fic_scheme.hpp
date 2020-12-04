@@ -152,6 +152,7 @@ public:
         mTheta1 = r_current_process_info[THETA_1];
         mTheta2 = r_current_process_info[THETA_2];
         mTheta3 = r_current_process_info[THETA_3];
+        mGamma = r_current_process_info[LOAD_FACTOR];
 
         /// Working in 2D/3D (the definition of DOMAIN_SIZE is check in the Check method)
         const SizeType dim = r_current_process_info[DOMAIN_SIZE];
@@ -491,9 +492,9 @@ public:
         if ( (nodal_mass + mDeltaTime*r_nodal_damping[0]) > numerical_limit){
             for (IndexType j = 0; j < DomainSize; j++) {
                 if (fix_displacements[j] == false) {
-                            r_current_displacement[j] = ((2.0*nodal_mass+mDeltaTime*r_nodal_damping[j]+mDeltaTime*mBeta*r_nodal_stiffness[j])*r_current_displacement[j] -
+                            r_current_displacement[j] = ((2.0*nodal_mass+mDeltaTime*r_nodal_damping[j]+mGamma*mDeltaTime*mBeta*r_nodal_stiffness[j])*r_current_displacement[j] -
                                                          mDeltaTime*(mBeta+mDeltaTime)*r_current_internal_force[j] + mDeltaTime*mBeta*r_previous_internal_force[j] -
-                                                         (mDeltaTime*mBeta*r_nodal_stiffness[j]+nodal_mass)*r_actual_previous_displacement[j] +
+                                                         (mGamma*mDeltaTime*mBeta*r_nodal_stiffness[j]+nodal_mass)*r_actual_previous_displacement[j] +
                                                          mDeltaTime*mDeltaTime*r_external_forces[j]) /
                                                         (nodal_mass + mDeltaTime*r_nodal_damping[j]);
                 }
@@ -825,6 +826,7 @@ protected:
     double mDeltaTime;
     double mAlpha;
     double mBeta;
+    double mGamma;
     double mTheta1;
     double mTheta2;
     double mTheta3;

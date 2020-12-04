@@ -42,7 +42,8 @@ class ExplicitMechanicalSolver(MechanicalSolver):
             "rayleigh_beta"              : 0.0,
             "theta_1"                    : 0.0,
             "theta_2"                    : 1.0,
-            "theta_3"                    : 0.0
+            "theta_3"                    : 0.0,
+            "gamma"                      : 1.0
         }""")
         this_defaults.AddMissingParameters(super().GetDefaultParameters())
         return this_defaults
@@ -120,6 +121,7 @@ class ExplicitMechanicalSolver(MechanicalSolver):
         process_info.SetValue(StructuralMechanicsApplication.THETA_1, self.settings["theta_1"].GetDouble())
         process_info.SetValue(StructuralMechanicsApplication.THETA_2, self.settings["theta_2"].GetDouble())
         process_info.SetValue(StructuralMechanicsApplication.THETA_3, self.settings["theta_3"].GetDouble())
+        process_info.SetValue(StructuralMechanicsApplication.LOAD_FACTOR, self.settings["gamma"].GetDouble())
         use_rayleigh_damping = True
         if self.settings["diagonal_critical_damping"].GetBool() == True:
             use_rayleigh_damping = False
