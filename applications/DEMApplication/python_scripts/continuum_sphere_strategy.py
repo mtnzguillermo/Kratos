@@ -102,7 +102,7 @@ class ExplicitStrategy(BaseExplicitStrategy):
                 self.spheres_model_part.ProcessInfo.SetValue(COMPUTE_STRESS_TENSOR_OPTION, 1)
                 break
 
-        if (self.DEM_parameters["TranslationalIntegrationScheme"].GetString() == 'Velocity_Verlet'):
+        if (self.DEM_parameters["TranslationalIntegrationScheme"].GetString() == 'Velocity_Verlet' or self.DEM_parameters["TranslationalIntegrationScheme"].GetString() == 'Split_Forward_Euler'):
             self.cplusplus_strategy = ContinuumVelocityVerletSolverStrategy(self.settings, self.max_delta_time, self.n_step_search, self.safety_factor,
                                                                             self.delta_option, self.creator_destructor, self.dem_fem_search, self.search_strategy, self.solver_settings)
         else:

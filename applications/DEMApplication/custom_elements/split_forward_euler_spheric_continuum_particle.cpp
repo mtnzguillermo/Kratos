@@ -59,10 +59,22 @@ void SplitForwardEulerSphericContinuumParticle::Initialize(const ProcessInfo& r_
     NodeType& node = GetGeometry()[0];
 
     node.SetValue(NODAL_DAMPING,0.0);
-    node.SetValue(NODAL_ROTATIONAL_DAMPING,0.0);
+    node.SetValue(ROTATIONAL_NODAL_DAMPING,0.0);
+    node.SetValue(NODAL_STIFFNESS,0.0);
+    node.SetValue(ROTATIONAL_NODAL_STIFFNESS,0.0);
+    node.SetValue(ALPHA_RAYLEIGH,0.0);
+    node.SetValue(BETA_RAYLEIGH,0.0);
+    node.SetValue(THETA_1,0.0);
+    node.SetValue(THETA_2,0.0);
     array_1d<double,3> zero_vector = ZeroVector(3);
-    node.SetValue(AUX_VELOCITY,zero_vector);
-    node.SetValue(AUX_ANGULAR_VELOCITY,zero_vector);
+    node.SetValue(EXTERNAL_FORCES,zero_vector);
+    node.SetValue(ROTATIONAL_EXTERNAL_FORCES,zero_vector);
+    node.SetValue(INTERNAL_FORCES,zero_vector);
+    node.SetValue(ROTATIONAL_INTERNAL_FORCES,zero_vector);
+    node.SetValue(INTERNAL_FORCES_OLD,zero_vector);
+    node.SetValue(ROTATIONAL_INTERNAL_FORCES_OLD,zero_vector);
+    node.SetValue(AUX_IMPULSE,zero_vector);
+    node.SetValue(ROTATIONAL_AUX_IMPULSE,zero_vector);
 
     KRATOS_CATCH( "" )
 }
@@ -90,8 +102,30 @@ void SplitForwardEulerSphericContinuumParticle::CalculateRightHandSide(const Pro
 
     const double& mass = this_node.FastGetSolutionStepValue(NODAL_MASS);
     const double& moment_of_inertia = this_node.FastGetSolutionStepValue(PARTICLE_MOMENT_OF_INERTIA);
-    double nodal_stiffness;
-    double nodal_rotational_stiffness;
+    double& nodal_stiffness = this_node.GetValue(NODAL_STIFFNESS);
+    double& nodal_rotational_stiffness = this_node.GetValue(ROTATIONAL_NODAL_STIFFNESS);
+    double& nodal_damping = this_node.GetValue(NODAL_DAMPING);
+    double& nodal_rotational_damping = this_node.GetValue(ROTATIONAL_NODAL_DAMPING);
+
+    double& alpha_rayleigh = this_node.GetValue(ALPHA_RAYLEIGH);
+    double& beta_rayleigh = this_node.GetValue(BETA_RAYLEIGH);
+    double& theta_1 = this_node.GetValue(THETA_1);
+    double& theta_2 = this_node.GetValue(THETA_2);
+    // NOTE: we define alpha and beta constant for all particles
+    alpha_rayleigh = r_process_info[ALPHA_RAYLEIGH];
+    beta_rayleigh = r_process_info[BETA_RAYLEIGH];
+    theta_1 = r_process_info[THETA_1];
+    theta_2 = r_process_info[THETA_2];
+
+    array_1d<double, 3>& external_forces = this_node.GetValue(EXTERNAL_FORCES);
+    array_1d<double, 3>& rotational_external_forces = this_node.GetValue(ROTATIONAL_EXTERNAL_FORCES);
+    array_1d<double, 3>& internal_forces = this_node.GetValue(INTERNAL_FORCES);
+    array_1d<double, 3>& rotational_internal_forces = this_node.GetValue(ROTATIONAL_INTERNAL_FORCES);
+    array_1d<double, 3>& internal_forces_old = this_node.GetValue(INTERNAL_FORCES_OLD);
+    array_1d<double, 3>& rotational_internal_forces_old = this_node.GetValue(ROTATIONAL_INTERNAL_FORCES_OLD);
+
+    noalias(internal_forces_old) = contact_force;
+    noalias(rotational_internal_forces_old) = mContactMoment;
 
     mContactMoment.clear();
     elastic_force.clear();
@@ -110,10 +144,8 @@ void SplitForwardEulerSphericContinuumParticle::CalculateRightHandSide(const Pro
 
     // Rayleigh Damping
     // TODO: does it make sense to use the same alpha and beta both for translational and rotational DOFs?
-    double& nodal_damping = this_node.GetValue(NODAL_DAMPING);
-    double& nodal_rotational_damping = this_node.GetValue(NODAL_ROTATIONAL_DAMPING);
-    nodal_damping = r_process_info[ALPHA_RAYLEIGH] * mass + r_process_info[BETA_RAYLEIGH] * nodal_stiffness;
-    nodal_rotational_damping = r_process_info[ALPHA_RAYLEIGH] * moment_of_inertia + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness;
+    nodal_damping = alpha_rayleigh * mass + beta_rayleigh * nodal_stiffness;
+    nodal_rotational_damping = alpha_rayleigh * moment_of_inertia + beta_rayleigh * nodal_rotational_stiffness;
 
     // KRATOS_WATCH(this->Id())
     // KRATOS_WATCH(mass)
@@ -145,6 +177,12 @@ void SplitForwardEulerSphericContinuumParticle::CalculateRightHandSide(const Pro
         }
     }
 
+    noalias(external_forces) = additional_forces;
+    noalias(rotational_external_forces) = additionally_applied_moment;
+    // NOTE: here the contact forces have no damping forces because we set them to zero
+    noalias(internal_forces) = contact_force;
+    noalias(rotational_internal_forces) = mContactMoment;
+
     array_1d<double,3>& total_forces = this_node.FastGetSolutionStepValue(TOTAL_FORCES);
     array_1d<double,3>& total_moment = this_node.FastGetSolutionStepValue(PARTICLE_MOMENT);
     array_1d<double,3>& velocity = this_node.FastGetSolutionStepValue(VELOCITY);
@@ -154,13 +192,21 @@ void SplitForwardEulerSphericContinuumParticle::CalculateRightHandSide(const Pro
     // TODO: can be diagonal damping force added globally ? I think it must be added globally. However,
     //       if the local damping force is used to calculate other local forces, there will be a small
     //       error because the diagonal damping force won't have been added until now.
-    total_forces[0] = contact_force[0] + additional_forces[0] + r_process_info[BETA_RAYLEIGH] * nodal_stiffness * velocity[0];
-    total_forces[1] = contact_force[1] + additional_forces[1] + r_process_info[BETA_RAYLEIGH] * nodal_stiffness * velocity[1];
-    total_forces[2] = contact_force[2] + additional_forces[2] + r_process_info[BETA_RAYLEIGH] * nodal_stiffness * velocity[2];
+    // total_forces[0] = contact_force[0] + additional_forces[0] + r_process_info[BETA_RAYLEIGH] * nodal_stiffness * velocity[0];
+    // total_forces[1] = contact_force[1] + additional_forces[1] + r_process_info[BETA_RAYLEIGH] * nodal_stiffness * velocity[1];
+    // total_forces[2] = contact_force[2] + additional_forces[2] + r_process_info[BETA_RAYLEIGH] * nodal_stiffness * velocity[2];
 
-    total_moment[0] = mContactMoment[0] + additionally_applied_moment[0] + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness * angular_velocity[0];
-    total_moment[1] = mContactMoment[1] + additionally_applied_moment[1] + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness * angular_velocity[1];
-    total_moment[2] = mContactMoment[2] + additionally_applied_moment[2] + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness * angular_velocity[2];
+    // total_moment[0] = mContactMoment[0] + additionally_applied_moment[0] + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness * angular_velocity[0];
+    // total_moment[1] = mContactMoment[1] + additionally_applied_moment[1] + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness * angular_velocity[1];
+    // total_moment[2] = mContactMoment[2] + additionally_applied_moment[2] + r_process_info[BETA_RAYLEIGH] * nodal_rotational_stiffness * angular_velocity[2];
+
+    total_forces[0] = contact_force[0] + additional_forces[0];
+    total_forces[1] = contact_force[1] + additional_forces[1];
+    total_forces[2] = contact_force[2] + additional_forces[2];
+
+    total_moment[0] = mContactMoment[0] + additionally_applied_moment[0];
+    total_moment[1] = mContactMoment[1] + additionally_applied_moment[1];
+    total_moment[2] = mContactMoment[2] + additionally_applied_moment[2];
 
     ApplyGlobalDampingToContactForcesAndMoments(total_forces, total_moment);
 

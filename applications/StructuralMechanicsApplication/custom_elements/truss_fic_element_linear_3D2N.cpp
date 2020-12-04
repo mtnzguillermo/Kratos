@@ -66,24 +66,31 @@ void TrussFICElementLinear3D2N::AddExplicitContribution(
 
     if (rDestinationVariable == NODAL_MASS) {
 
-        VectorType element_damping_vector(msLocalSize);
-        CalculateLumpedDampingVector(element_damping_vector, rCurrentProcessInfo);
-
         VectorType element_mass_vector(msLocalSize);
         CalculateLumpedMassVector(element_mass_vector);
 
-        for (SizeType i = 0; i < msNumberOfNodes; ++i) {
-            double& r_nodal_damping = r_geom[i].GetValue(NODAL_DISPLACEMENT_DAMPING);
-            double& r_nodal_mass = r_geom[i].GetValue(NODAL_MASS);
-            int index = i * msDimension;
+        VectorType element_stiffness_vector(msLocalSize);
+        CalculateLumpedStiffnessVector(element_stiffness_vector,rCurrentProcessInfo);
 
-            #pragma omp atomic
-            r_nodal_damping += element_damping_vector[index];
+        VectorType element_damping_vector(msLocalSize);
+        CalculateLumpedDampingVector(element_damping_vector, rCurrentProcessInfo);
+
+        for (SizeType i = 0; i < msNumberOfNodes; ++i) {
+            double& r_nodal_mass = r_geom[i].GetValue(NODAL_MASS);
+            array_1d<double, 3>& r_nodal_stiffness = r_geom[i].GetValue(NODAL_DIAGONAL_STIFFNESS);
+            array_1d<double, 3>& r_nodal_damping = r_geom[i].GetValue(NODAL_DIAGONAL_DAMPING);
+            int index = i * msDimension;
 
             #pragma omp atomic
             r_nodal_mass += element_mass_vector[index];
 
+            for (SizeType j = 0; j < msDimension; ++j) {
+                #pragma omp atomic
+                r_nodal_stiffness[j] += element_stiffness_vector[index+j];
 
+                #pragma omp atomic
+                r_nodal_damping[j] += element_damping_vector[index+j];
+            }
         }
     }
 

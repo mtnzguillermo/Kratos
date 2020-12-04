@@ -442,7 +442,7 @@ namespace Kratos {
         const double equiv_tg_of_static_fri_ang            = 0.5 * (my_tg_of_static_friction_angle + neighbour_tg_of_static_friction_angle);
 
         const double my_tg_of_dynamic_friction_angle        = element1->GetTgOfDynamicFrictionAngle();
-        const double neighbour_tg_of_dynamic_friction_angle = element2->GetTgOfStaticFrictionAngle();
+        const double neighbour_tg_of_dynamic_friction_angle = element2->GetTgOfDynamicFrictionAngle();
         const double equiv_tg_of_dynamic_fri_ang            = 0.5 * (my_tg_of_dynamic_friction_angle + neighbour_tg_of_dynamic_friction_angle);
 
         if(equiv_tg_of_static_fri_ang < 0.0 || equiv_tg_of_dynamic_fri_ang < 0.0) {
@@ -622,9 +622,12 @@ namespace Kratos {
         KRATOS_TRY
 
         if ((indentation > 0) || (failure_id == 0)) {
-            ViscoDampingLocalContactForce[0] = - beta_rayleigh * kt_el * LocalRelVel[0];
-            ViscoDampingLocalContactForce[1] = - beta_rayleigh * kt_el * LocalRelVel[1];
-            ViscoDampingLocalContactForce[2] = - beta_rayleigh * kn_el * LocalRelVel[2];
+            // ViscoDampingLocalContactForce[0] = - beta_rayleigh * kt_el * LocalRelVel[0];
+            // ViscoDampingLocalContactForce[1] = - beta_rayleigh * kt_el * LocalRelVel[1];
+            // ViscoDampingLocalContactForce[2] = - beta_rayleigh * kn_el * LocalRelVel[2];
+            ViscoDampingLocalContactForce[0] = 0.0;
+            ViscoDampingLocalContactForce[1] = 0.0;
+            ViscoDampingLocalContactForce[2] = 0.0;
         }
 
         mViscoDampingLocalContactForce[0] = ViscoDampingLocalContactForce[0];

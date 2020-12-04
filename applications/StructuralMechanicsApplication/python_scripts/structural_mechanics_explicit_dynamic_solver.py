@@ -34,14 +34,15 @@ class ExplicitMechanicalSolver(MechanicalSolver):
             "delta_time_refresh"         : 1000,
             "max_delta_time"             : 1.0e0,
             "fraction_delta_time"        : 0.333333333333333333333333333333333333,
+            "l2_rel_tolerance"           : 1.0e-4,
+            "l2_abs_tolerance"           : 1.0e-9,
+            "diagonal_critical_damping"  : false,
+            "xi_damping"                 : 0.0,
             "rayleigh_alpha"             : 0.0,
             "rayleigh_beta"              : 0.0,
             "theta_1"                    : 0.0,
-            "theta_2"                    : 0.0,
-            "diagonal_critical_damping"  : false,
-            "xi_damping"                 : 0.0,
-            "l2_rel_tolerance"           : 1.0e-4,
-            "l2_abs_tolerance"           : 1.0e-8
+            "theta_2"                    : 1.0,
+            "theta_3"                    : 0.0
         }""")
         this_defaults.AddMissingParameters(super().GetDefaultParameters())
         return this_defaults
@@ -64,6 +65,10 @@ class ExplicitMechanicalSolver(MechanicalSolver):
             self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.NODAL_INERTIA)
             self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.NODAL_INITIAL_DISPLACEMENT)
             self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.NODAL_ROTATION_DAMPING)
+            # self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.MIDDLE_VELOCITY)
+            # self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.FRACTIONAL_ANGULAR_ACCELERATION)
+            # self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.FRACTIONAL_ACCELERATION)
+            # self.main_model_part.AddNodalSolutionStepVariable(StructuralMechanicsApplication.MIDDLE_ANGULAR_VELOCITY)
 
         self.main_model_part.AddNodalSolutionStepVariable(KratosMultiphysics.NODAL_MASS)
         self.main_model_part.AddNodalSolutionStepVariable(KratosMultiphysics.FORCE_RESIDUAL)
@@ -131,6 +136,7 @@ class ExplicitMechanicalSolver(MechanicalSolver):
         process_info.SetValue(StructuralMechanicsApplication.RAYLEIGH_BETA, self.settings["rayleigh_beta"].GetDouble())
         process_info.SetValue(StructuralMechanicsApplication.THETA_1, self.settings["theta_1"].GetDouble())
         process_info.SetValue(StructuralMechanicsApplication.THETA_2, self.settings["theta_2"].GetDouble())
+        process_info.SetValue(StructuralMechanicsApplication.THETA_3, self.settings["theta_3"].GetDouble())
         use_rayleigh_damping = True
         if self.settings["diagonal_critical_damping"].GetBool() == True:
             use_rayleigh_damping = False
@@ -139,7 +145,6 @@ class ExplicitMechanicalSolver(MechanicalSolver):
         process_info.SetValue(KratosMultiphysics.ERROR_RATIO, self.settings["l2_rel_tolerance"].GetDouble())
         process_info.SetValue(KratosMultiphysics.ERROR_INTEGRATION_POINT, self.settings["l2_abs_tolerance"].GetDouble())
         process_info.SetValue(KratosMultiphysics.DELTA_TIME, self.settings["time_stepping"]["time_step"].GetDouble())
-        # self.main_model_part.ProcessInfo[KratosMultiphysics.DELTA_TIME] = self.settings["time_stepping"]["time_step"].GetDouble()
 
         # Setting the time integration schemes
         if(scheme_type == "central_differences"):

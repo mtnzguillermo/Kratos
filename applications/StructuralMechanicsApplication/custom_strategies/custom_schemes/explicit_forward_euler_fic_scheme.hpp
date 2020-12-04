@@ -151,6 +151,7 @@ public:
         mBeta = r_current_process_info[RAYLEIGH_BETA];
         mTheta1 = r_current_process_info[THETA_1];
         mTheta2 = r_current_process_info[THETA_2];
+        mTheta3 = r_current_process_info[THETA_3];
 
         /// Working in 2D/3D (the definition of DOMAIN_SIZE is check in the Check method)
         const SizeType dim = r_current_process_info[DOMAIN_SIZE];
@@ -242,6 +243,10 @@ public:
         VariableUtils().SetVariable(FORCE_RESIDUAL, zero_array,r_nodes);
         VariableUtils().SetVariable(NODAL_INERTIA, zero_array,r_nodes);
         // VariableUtils().SetVariable(NODAL_ROTATION_DAMPING, zero_array,r_nodes);
+        // VariableUtils().SetVariable(FRACTIONAL_ACCELERATION, zero_array,r_nodes); // Kd*a
+        // VariableUtils().SetVariable(MIDDLE_VELOCITY, zero_array,r_nodes); // K^*a=K*a-Kd*a
+        // VariableUtils().SetVariable(FRACTIONAL_ANGULAR_ACCELERATION, zero_array,r_nodes); // K*a
+        // VariableUtils().SetVariable(MIDDLE_ANGULAR_VELOCITY, zero_array,r_nodes); // (Kd*a)/(K^*a)
 
         KRATOS_CATCH("")
     }
@@ -285,6 +290,17 @@ public:
             noalias(r_external_forces) = ZeroVector(3);
             noalias(r_current_internal_force) = ZeroVector(3);
             // noalias(r_damping_residual) = ZeroVector(3);
+            array_1d<double,3> zero_vector = ZeroVector(3);
+            it_node->SetValue(NODAL_DIAGONAL_STIFFNESS,zero_vector);
+            it_node->SetValue(NODAL_DIAGONAL_DAMPING,zero_vector);
+            // array_1d<double, 3>& r_kda = it_node->FastGetSolutionStepValue(FRACTIONAL_ACCELERATION); // Kd*a
+            // array_1d<double, 3>& r_khata = it_node->FastGetSolutionStepValue(MIDDLE_VELOCITY); // K^*a=K*a-Kd*a
+            // array_1d<double, 3>& r_ka = it_node->FastGetSolutionStepValue(FRACTIONAL_ANGULAR_ACCELERATION); // K*a
+            // array_1d<double, 3>& r_kda_over_khata = it_node->FastGetSolutionStepValue(MIDDLE_ANGULAR_VELOCITY); // (Kd*a)/(K^*a)
+            // noalias(r_kda) = ZeroVector(3);
+            // noalias(r_khata) = ZeroVector(3);
+            // noalias(r_ka) = ZeroVector(3);
+            // noalias(r_kda_over_khata) = ZeroVector(3);
         }
 
         KRATOS_CATCH("")
@@ -299,6 +315,8 @@ public:
     ) override
     {
         KRATOS_TRY;
+
+        this->CalculateAndAddRHS(rModelPart);
 
         // The current process info
         const ProcessInfo& r_current_process_info = rModelPart.GetProcessInfo();
@@ -326,11 +344,9 @@ public:
         for (int i = 0; i < static_cast<int>(r_nodes.size()); ++i) {
             // Current step information "N+1" (before step update).
             this->PredictTranslationalDegreesOfFreedom(it_node_begin + i, disppos, dim);
-
-            // TODO
-            // KRATOS_WATCH((it_node_begin+i)->GetValue(NODAL_MASS))
-            // KRATOS_WATCH((it_node_begin+i)->GetValue(NODAL_DISPLACEMENT_DAMPING))
         } // for Node parallel
+
+        InitializeResidual(rModelPart);
 
         this->CalculateAndAddRHS(rModelPart);
 
@@ -424,6 +440,104 @@ public:
         NodesArrayType& r_nodes = rModelPart.Nodes();
         const auto it_node_begin = rModelPart.NodesBegin();
 
+        // #pragma omp parallel for
+        // for (int i = 0; i < static_cast<int>(r_nodes.size()); ++i) {
+        //     NodeIterator itCurrentNode = it_node_begin + i;
+        //     const array_1d<double, 3>& r_current_internal_force = itCurrentNode->FastGetSolutionStepValue(NODAL_INERTIA); // internal_force: int(Bt*sigma)
+        //     array_1d<double, 3>& r_kda = itCurrentNode->FastGetSolutionStepValue(FRACTIONAL_ACCELERATION); // Kd*a
+        //     array_1d<double, 3>& r_khata = itCurrentNode->FastGetSolutionStepValue(MIDDLE_VELOCITY); // K^*a=K*a-Kd*a
+        //     array_1d<double, 3>& r_kda_over_khata = itCurrentNode->FastGetSolutionStepValue(MIDDLE_ANGULAR_VELOCITY); // (Kd*a)/(K^*a)
+        //     const array_1d<double, 3>& r_current_displacement = itCurrentNode->FastGetSolutionStepValue(DISPLACEMENT);
+        //     const array_1d<double, 3>& r_nodal_stiffness = itCurrentNode->GetValue(NODAL_DIAGONAL_STIFFNESS);
+        //     for(unsigned int j=0; j<3; ++j){
+        //         r_kda[j] = r_nodal_stiffness[j]*r_current_displacement[j];
+        //         r_khata[j] = r_current_internal_force[j]-r_nodal_stiffness[j]*r_current_displacement[j];
+        //         if(std::abs(r_khata[j]) > numerical_limit){
+        //             r_kda_over_khata[j] = r_kda[j]/r_khata[j];
+        //         } else if(r_khata[j] > 0.0) {
+        //             r_kda_over_khata[j] = r_kda[j]/numerical_limit;
+        //         } else if(r_khata[j] < 0.0) {
+        //             r_kda_over_khata[j] = -r_kda[j]/numerical_limit;
+        //         }
+        //     }
+        // }
+
+        // double omega_min = 1.0e30;
+        // double omega_max = -1.0e30;
+        // double Kd_min = 1.0e30;
+        // double Kd_max = -1.0e30;
+        // double M_min = 1.0e30;
+        // double M_max = -1.0e30;
+        // #pragma omp parallel for
+        // for (int i = 0; i < static_cast<int>(r_nodes.size()); ++i) {
+        //     NodeIterator itCurrentNode = it_node_begin + i;
+        //     const array_1d<double, 3>& r_current_displacement = itCurrentNode->FastGetSolutionStepValue(DISPLACEMENT);
+
+        //     const array_1d<double, 3>& r_current_internal_force = itCurrentNode->FastGetSolutionStepValue(NODAL_INERTIA);
+        //     const array_1d<double, 3>& r_nodal_stiffness = itCurrentNode->GetValue(NODAL_DIAGONAL_STIFFNESS);
+        //     const array_1d<double, 3>& r_khata = itCurrentNode->FastGetSolutionStepValue(MIDDLE_VELOCITY); // K^*a
+        //     const array_1d<double, 3>& r_ka = itCurrentNode->FastGetSolutionStepValue(FRACTIONAL_ANGULAR_ACCELERATION); // K*a
+        //     const double nodal_mass = itCurrentNode->GetValue(NODAL_MASS);
+
+        //     KRATOS_WATCH(itCurrentNode->Id())
+        //     KRATOS_WATCH(nodal_mass)
+        //     KRATOS_WATCH(r_nodal_stiffness)
+        //     KRATOS_WATCH(r_current_displacement)
+
+            // for(unsigned int j=0; j<3; ++j){
+        //         double omega_i=std::sqrt(r_nodal_stiffness[j]/nodal_mass);
+        //         if(omega_i > omega_max){
+        //             #pragma omp critical
+        //             {
+        //                 omega_max = omega_i;
+        //             }
+        //         }
+        //         else if(omega_i < omega_min){
+        //             #pragma omp critical
+        //             {
+        //                 omega_min = omega_i;
+        //             }
+        //         }
+        //         if(r_nodal_stiffness[j] > Kd_max){
+        //             #pragma omp critical
+        //             {
+        //                 Kd_max = r_nodal_stiffness[j];
+        //             }
+        //         }
+        //         else if(r_nodal_stiffness[j] < Kd_min){
+        //             #pragma omp critical
+        //             {
+        //                 Kd_min = r_nodal_stiffness[j];
+        //             }
+        //         }
+                // KRATOS_WATCH(r_current_internal_force[j]-r_nodal_stiffness[j]*r_current_displacement[j])
+        //         KRATOS_WATCH(omega_i)
+            // }
+        //     if(nodal_mass > M_max){
+        //         #pragma omp critical
+        //         {
+        //             M_max = nodal_mass;
+        //         }
+        //     }
+        //     else if(nodal_mass < M_min){
+        //         #pragma omp critical
+        //         {
+        //             M_min = nodal_mass;
+        //         }
+            // }
+        //     // KRATOS_WATCH(r_M_d_a)
+        //     // KRATOS_WATCH(r_k_d_a)
+            // KRATOS_WATCH(r_khata)
+            // KRATOS_WATCH(r_current_internal_force)
+            // KRATOS_WATCH(r_ka)
+        // }
+        // KRATOS_WATCH(omega_min)
+        // KRATOS_WATCH(omega_max)
+        // KRATOS_WATCH(Kd_min)
+        // KRATOS_WATCH(Kd_max)
+        // KRATOS_WATCH(M_min)
+        // KRATOS_WATCH(M_max)
+
         double l2_numerator = 0.0;
         double l2_denominator = 0.0;
         #pragma omp parallel for reduction(+:l2_numerator,l2_denominator)
@@ -466,18 +580,17 @@ public:
             l2_denominator += norm_2_u_old;
         }
         if (l2_denominator > 1.0e-12) {
-
             double l2_abs_error = std::sqrt(l2_numerator);
             double l2_rel_error = l2_abs_error/std::sqrt(l2_denominator);
 
-            // TODO
             // std::fstream l2_error_file;
             // l2_error_file.open ("l2_error_time.txt", std::fstream::out | std::fstream::app);
             // l2_error_file.precision(12);
-            // l2_error_file << r_current_process_info[TIME] << " " << l2_rel_error << std::endl;
+            // l2_error_file << r_current_process_info[TIME] << " " << l2_error << std::endl;
             // l2_error_file.close();
 
             if (l2_rel_error <= r_current_process_info[ERROR_RATIO] && l2_abs_error <= r_current_process_info[ERROR_INTEGRATION_POINT]) {
+            // if (l2_rel_error <= r_current_process_info[ERROR_RATIO]) {
                 KRATOS_INFO("STOP CRITERION") << "The simulation is completed at step: " << r_current_process_info[STEP] << std::endl;
                 KRATOS_INFO("STOP CRITERION") << "L2 Relative Error is: " << l2_rel_error << std::endl;
                 KRATOS_INFO("STOP CRITERION") << "L2 Absolute Error is: " << l2_abs_error << std::endl;
@@ -701,6 +814,7 @@ protected:
     double mBeta;
     double mTheta1;
     double mTheta2;
+    double mTheta3;
 
     ///@}
     ///@name Protected member Variables

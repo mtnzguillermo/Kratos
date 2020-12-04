@@ -156,9 +156,12 @@ namespace Kratos {
                                                                   double ViscoDampingLocalContactForce[3],
                                                                   const double beta_rayleigh) {
 
-        ViscoDampingLocalContactForce[0] = - beta_rayleigh * mKt * LocalRelVel[0];
-        ViscoDampingLocalContactForce[1] = - beta_rayleigh * mKt * LocalRelVel[1];
-        ViscoDampingLocalContactForce[2] = - beta_rayleigh * mKn * LocalRelVel[2];
+        // ViscoDampingLocalContactForce[0] = - beta_rayleigh * mKt * LocalRelVel[0];
+        // ViscoDampingLocalContactForce[1] = - beta_rayleigh * mKt * LocalRelVel[1];
+        // ViscoDampingLocalContactForce[2] = - beta_rayleigh * mKn * LocalRelVel[2];
+        ViscoDampingLocalContactForce[0] = 0.0;
+        ViscoDampingLocalContactForce[1] = 0.0;
+        ViscoDampingLocalContactForce[2] = 0.0;
     }
 
     void DEM_D_Linear_viscous_Coulomb::CalculateViscoDampingForce(double LocalRelVel[3],
@@ -345,9 +348,12 @@ namespace Kratos {
                                                                          double ViscoDampingLocalContactForce[3],
                                                                          const double beta_rayleigh) {
 
-        ViscoDampingLocalContactForce[0] = - beta_rayleigh * mKt * LocalRelVel[0];
-        ViscoDampingLocalContactForce[1] = - beta_rayleigh * mKt * LocalRelVel[1];
-        ViscoDampingLocalContactForce[2] = - beta_rayleigh * mKn * LocalRelVel[2];
+        // ViscoDampingLocalContactForce[0] = - beta_rayleigh * mKt * LocalRelVel[0];
+        // ViscoDampingLocalContactForce[1] = - beta_rayleigh * mKt * LocalRelVel[1];
+        // ViscoDampingLocalContactForce[2] = - beta_rayleigh * mKn * LocalRelVel[2];
+        ViscoDampingLocalContactForce[0] = 0.0;
+        ViscoDampingLocalContactForce[1] = 0.0;
+        ViscoDampingLocalContactForce[2] = 0.0;
 
     }
 

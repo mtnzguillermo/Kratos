@@ -180,6 +180,8 @@ public:
     {
         KRATOS_TRY;
 
+        this->CalculateAndAddRHS(rModelPart);
+
         // The current process info
         const ProcessInfo& r_current_process_info = rModelPart.GetProcessInfo();
 
@@ -205,6 +207,8 @@ public:
             // Current step information "N+1" (before step update).
             this->PredictTranslationalDegreesOfFreedom(it_node_begin + i, disppos, dim);
         } // for Node parallel
+
+        InitializeResidual(rModelPart);
 
         this->CalculateAndAddRHS(rModelPart);
 
