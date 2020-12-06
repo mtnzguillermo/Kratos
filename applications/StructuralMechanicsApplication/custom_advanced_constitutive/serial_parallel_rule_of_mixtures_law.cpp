@@ -298,7 +298,7 @@ void SerialParallelRuleOfMixturesLaw::CheckStressEquilibrium(
     double ref = std::min(norm_serial_stress_matrix, norm_serial_stress_fiber);
 
     // Here we compute the tolerance
-    double tolerance;
+    double tolerance = 1.0e-5;
     if (r_props_matrix_cl.Has(SERIAL_PARALLEL_EQUILIBRIUM_TOLERANCE) || r_props_fiber_cl.Has(SERIAL_PARALLEL_EQUILIBRIUM_TOLERANCE)) {
         if (r_props_matrix_cl.Has(SERIAL_PARALLEL_EQUILIBRIUM_TOLERANCE))
             tolerance = r_props_matrix_cl[SERIAL_PARALLEL_EQUILIBRIUM_TOLERANCE];
@@ -310,10 +310,7 @@ void SerialParallelRuleOfMixturesLaw::CheckStressEquilibrium(
             const double norm_product_fiber  = MathUtils<double>::Norm(prod(rConstitutiveTensorFiberSS, serial_total_strain));
             ref = std::min(norm_product_matrix, norm_product_fiber);
         }
-        if (ref < 1e-9)
-            tolerance = 1e-9;
-        else
-            tolerance = 1e-4 * ref;
+        tolerance = std::max(1.0e-5, 1e-4 * ref);
     }
 
     noalias(rStressSerialResidual) = serial_stress_matrix - serial_stress_fiber;
@@ -321,11 +318,6 @@ void SerialParallelRuleOfMixturesLaw::CheckStressEquilibrium(
     if (norm_residual < tolerance) 
         rIsConverged = true;
 
-    // If one of the components is fully degraded
-    if (norm_serial_stress_matrix < 1.0e-4 * norm_serial_stress_fiber ||
-        norm_serial_stress_fiber  < 1.0e-4 * norm_serial_stress_matrix) {
-            rIsConverged = true;
-        }
 }
 
 /***********************************************************************************/
