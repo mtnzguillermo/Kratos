@@ -121,7 +121,7 @@ void AddCustomConstitutiveLawsToPython(pybind11::module& m) {
         .def(py::init<>())
         ;
 
-    py::class_<DEM_continuum_Conical_damage, DEM_continuum_Conical_damage::Pointer, DEMDiscontinuumConstitutiveLaw>(m, "DEM_continuum_Conical_damage")
+    py::class_<DEM_Continuum_Conical_damage, DEM_Continuum_Conical_damage::Pointer, DEMDiscontinuumConstitutiveLaw>(m, "DEM_Continuum_Conical_damage")
         .def(py::init<>())
         ;
 

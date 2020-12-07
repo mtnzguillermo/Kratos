@@ -936,9 +936,8 @@ void KratosDEMApplication::Register() {
     Serializer::Register("DEM_D_Stress_Dependent_Cohesive", DEM_D_Stress_Dependent_Cohesive());
     Serializer::Register("DEM_D_Linear_Custom_Constants", DEM_D_Linear_Custom_Constants());
     Serializer::Register("DEM_D_Conical_damage", DEM_D_Conical_damage());
-    Serializer::Register("DEM_continuum_Conical_damage", DEM_continuum_Conical_damage());
-    Serializer::Register("DEM_D_Hertz_viscous_Coulomb_Nestle",
-        DEM_D_Hertz_viscous_Coulomb_Nestle());
+    Serializer::Register("DEM_Continuum_Conical_damage", DEM_Continuum_Conical_damage());
+    Serializer::Register("DEM_D_Hertz_viscous_Coulomb_Nestle", DEM_D_Hertz_viscous_Coulomb_Nestle());
 
     Serializer::Register("DEM_Dempack", DEM_Dempack());
     Serializer::Register("DEM_Dempack2D", DEM_Dempack2D());

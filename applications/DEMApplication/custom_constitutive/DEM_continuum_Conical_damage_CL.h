@@ -16,15 +16,15 @@ namespace Kratos {
 
     class SphericContinuumParticle;
 
-    class KRATOS_API(DEM_APPLICATION) DEM_continuum_Conical_damage : public DEM_D_Hertz_viscous_Coulomb {
+    class KRATOS_API(DEM_APPLICATION) DEM_Continuum_Conical_damage : public DEM_D_Hertz_viscous_Coulomb {
 
     public:
 
-        KRATOS_CLASS_POINTER_DEFINITION(DEM_continuum_Conical_damage);
+        KRATOS_CLASS_POINTER_DEFINITION(DEM_Continuum_Conical_damage);
 
-        DEM_continuum_Conical_damage() {}
+        DEM_Continuum_Conical_damage() {}
 
-        ~DEM_continuum_Conical_damage() {}
+        ~DEM_Continuum_Conical_damage() {}
 
 
         void SetConstitutiveLawInProperties(Properties::Pointer pProp, bool verbose = true) override;
@@ -153,7 +153,7 @@ namespace Kratos {
             KRATOS_SERIALIZE_LOAD_BASE_CLASS(rSerializer, DEMDiscontinuumConstitutiveLaw)
         }
 
-    }; //class DEM_continuum_Conical_damage
+    }; //class DEM_Continuum_Conical_damage
 
 } /* namespace Kratos.*/
 #endif /* DEM_CONTINUUM_CONICAL_DAMAGE_CL_H_INCLUDED  defined */
