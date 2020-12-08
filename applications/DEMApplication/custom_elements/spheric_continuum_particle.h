@@ -96,7 +96,7 @@ namespace Kratos
 
         void Calculate(const Variable<double>& rVariable, double& Output, const ProcessInfo& r_process_info) override;
 
-        virtual void ReorderAndRecoverInitialPositionsAndFilter(std::vector<SphericParticle*>& mTempNeighbourElements);
+        void ReorderAndRecoverInitialPositionsAndFilter(std::vector<SphericParticle*>& mTempNeighbourElements);
         virtual void UpdateContinuumNeighboursVector(const ProcessInfo& r_process_info);
         virtual void ComputeForceWithNeighbourFinalOperations();
 
