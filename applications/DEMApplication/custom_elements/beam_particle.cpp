@@ -16,17 +16,17 @@
 
 namespace Kratos {
 
-    BeamParticle::BeamParticle() : ContactInfoContinuumSphericParticle() {}
+    BeamParticle::BeamParticle() : ContactInfoSphericContinuumParticle() {}
 
-    BeamParticle::BeamParticle(IndexType NewId, GeometryType::Pointer pGeometry) : ContactInfoContinuumSphericParticle(NewId, pGeometry) {}
+    BeamParticle::BeamParticle(IndexType NewId, GeometryType::Pointer pGeometry) : ContactInfoSphericContinuumParticle(NewId, pGeometry) {}
 
 
     BeamParticle::BeamParticle(IndexType NewId, GeometryType::Pointer pGeometry, PropertiesType::Pointer pProperties)
-    : ContactInfoContinuumSphericParticle(NewId, pGeometry, pProperties) {}
+    : ContactInfoSphericContinuumParticle(NewId, pGeometry, pProperties) {}
 
 
     BeamParticle::BeamParticle(IndexType NewId, NodesArrayType const& ThisNodes)
-    : ContactInfoContinuumSphericParticle(NewId, ThisNodes) {}
+    : ContactInfoSphericContinuumParticle(NewId, ThisNodes) {}
 
 
     BeamParticle::BeamParticle(Element::Pointer p_continuum_spheric_particle)
@@ -48,7 +48,7 @@ namespace Kratos {
         mBeamConstitutiveLawArray.resize(mContinuumInitialNeighborsSize);
 
         for (unsigned int i = 0; i < mContinuumInitialNeighborsSize; i++) {
-            DEMBeamConstitutiveLaw::Pointer NewBeamConstitutiveLaw = GetProperties()[DEM_BEAM_CONSTITUTIVE_LAW_POINTER]-> Clone();
+            DEM_Beam::Pointer NewBeamConstitutiveLaw = GetProperties()[DEM_BEAM_CONSTITUTIVE_LAW_POINTER]-> Clone();
             mBeamConstitutiveLawArray[i] = NewBeamConstitutiveLaw;
             mBeamConstitutiveLawArray[i]->Initialize(this);
         }
@@ -67,7 +67,7 @@ namespace Kratos {
 
         KRATOS_TRY
 
-        ContactInfoContinuumSphericParticle::Initialize(r_process_info);
+        ContactInfoSphericContinuumParticle::Initialize(r_process_info);
 
         double distance = GetProperties()[BEAM_PARTICLES_DISTANCE];
 
@@ -164,7 +164,7 @@ namespace Kratos {
 
             if (mNeighbourElements[i] == NULL) continue;
             if (this->Is(NEW_ENTITY) && mNeighbourElements[i]->Is(NEW_ENTITY)) continue;
-            ContactInfoContinuumSphericParticle* neighbour_iterator = dynamic_cast<ContactInfoContinuumSphericParticle*>(mNeighbourElements[i]);
+            ContactInfoSphericContinuumParticle* neighbour_iterator = dynamic_cast<ContactInfoSphericContinuumParticle*>(mNeighbourElements[i]);
             data_buffer.mpOtherParticle = neighbour_iterator;
 
             unsigned int neighbour_iterator_id = data_buffer.mpOtherParticle->Id();
@@ -392,7 +392,7 @@ namespace Kratos {
                 total_local_elastic_contact_force[0] = LocalElasticContactForce[0] + LocalElasticExtraContactForce[0];
                 total_local_elastic_contact_force[1] = LocalElasticContactForce[1] + LocalElasticExtraContactForce[1];
                 total_local_elastic_contact_force[2] = LocalElasticContactForce[2] + LocalElasticExtraContactForce[2];
-                ContactInfoContinuumSphericParticle::CalculateOnContinuumContactElements(i,
+                ContactInfoSphericContinuumParticle::CalculateOnContinuumContactElements(i,
                                                                                          total_local_elastic_contact_force,
                                                                                          contact_sigma,
                                                                                          contact_tau,

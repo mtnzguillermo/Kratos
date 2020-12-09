@@ -1,58 +1,58 @@
 // Authors: J. Irazábal (CIMNE)
 // Date: May 2019
 
-#include "DEM_continuum_Conical_damage_CL.h"
+#include "DEM_D_Conical_damage_continuum_CL.h"
 #include "DEM_D_Hertz_viscous_Coulomb_CL.h"
 #include "custom_elements/spheric_continuum_particle.h"
 
 namespace Kratos {
 
-    DEMDiscontinuumConstitutiveLaw::Pointer DEM_Continuum_Conical_damage::Clone() const {
-        DEMDiscontinuumConstitutiveLaw::Pointer p_clone(new DEM_Continuum_Conical_damage(*this));
+    DEMDiscontinuumConstitutiveLaw::Pointer DEM_D_Conical_damage_continuum::Clone() const {
+        DEMDiscontinuumConstitutiveLaw::Pointer p_clone(new DEM_D_Conical_damage_continuum(*this));
         return p_clone;
     }
 
-    void DEM_Continuum_Conical_damage::SetConstitutiveLawInProperties(Properties::Pointer pProp, bool verbose) {
-        if(verbose) KRATOS_INFO("DEM") << "Assigning DEM_Continuum_Conical_damage to Properties " << pProp->Id() << std::endl;
+    void DEM_D_Conical_damage_continuum::SetConstitutiveLawInProperties(Properties::Pointer pProp, bool verbose) {
+        if(verbose) KRATOS_INFO("DEM") << "Assigning DEM_D_Conical_damage_continuum to Properties " << pProp->Id() << std::endl;
         pProp->SetValue(DEM_DISCONTINUUM_CONSTITUTIVE_LAW_POINTER, this->Clone());
         this->Check(pProp);
     }
 
-    void DEM_Continuum_Conical_damage::Check(Properties::Pointer pProp) const {
+    void DEM_D_Conical_damage_continuum::Check(Properties::Pointer pProp) const {
         DEMDiscontinuumConstitutiveLaw::Check(pProp);
         if(!pProp->Has(CONICAL_DAMAGE_CONTACT_RADIUS)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_CONTACT_RADIUS should be present in the properties when using DEM_Continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_CONTACT_RADIUS should be present in the properties when using DEM_D_Conical_damage_continuum. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_CONTACT_RADIUS) = 0.0;
         }
         if(!pProp->Has(CONICAL_DAMAGE_MAX_STRESS)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_MAX_STRESS should be present in the properties when using DEM_Continuum_Conical_damage. 1.0e20 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_MAX_STRESS should be present in the properties when using DEM_D_Conical_damage_continuum. 1.0e20 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_MAX_STRESS) = 1.0e20;
         }
         if(!pProp->Has(CONICAL_DAMAGE_ALPHA)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_ALPHA should be present in the properties when using DEM_Continuum_Conical_damage. 90.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_ALPHA should be present in the properties when using DEM_D_Conical_damage_continuum. 90.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_ALPHA) = 90.0;
         }
         if(!pProp->Has(CONICAL_DAMAGE_GAMMA)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_GAMMA should be present in the properties when using DEM_Continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CONICAL_DAMAGE_GAMMA should be present in the properties when using DEM_D_Conical_damage_continuum. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CONICAL_DAMAGE_GAMMA) = 0.0;
         }
         if(!pProp->Has(LEVEL_OF_FOULING)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable LEVEL_OF_FOULING should be present in the properties when using DEM_Continuum_Conical_damage. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable LEVEL_OF_FOULING should be present in the properties when using DEM_D_Conical_damage_continuum. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(LEVEL_OF_FOULING) = 0.0;
         }
     }
 
-    std::string DEM_Continuum_Conical_damage::GetTypeOfLaw() {
+    std::string DEM_D_Conical_damage_continuum::GetTypeOfLaw() {
         std::string type_of_law = "Conical_damage";
         return type_of_law;
     }
@@ -61,7 +61,7 @@ namespace Kratos {
     // DEM-DEM INTERACTION //
     /////////////////////////
 
-    void DEM_Continuum_Conical_damage::InitializeDependentContact(double equiv_radius,
+    void DEM_D_Conical_damage_continuum::InitializeDependentContact(double equiv_radius,
                                                                   const double equiv_level_of_fouling,
                                                                   const double equiv_young,
                                                                   const double equiv_shear,
@@ -72,8 +72,8 @@ namespace Kratos {
         mKt = 4.0 * equiv_shear * mKn / equiv_young;
     }
 
-    void DEM_Continuum_Conical_damage::DamageContact(ContactInfoContinuumSphericParticle* const element1,
-                                                     ContactInfoContinuumSphericParticle* const element2,
+    void DEM_D_Conical_damage_continuum::DamageContact(ContactInfoSphericContinuumParticle* const element1,
+                                                     ContactInfoSphericContinuumParticle* const element2,
                                                      double& equiv_radius,
                                                      const double equiv_level_of_fouling,
                                                      const double equiv_young,
@@ -108,7 +108,7 @@ namespace Kratos {
         mKt = 4.0 * equiv_shear * mKn / equiv_young;
     }
 
-    void DEM_Continuum_Conical_damage::CalculateForces(const ProcessInfo& r_process_info,
+    void DEM_D_Conical_damage_continuum::CalculateForces(const ProcessInfo& r_process_info,
                                                        const double OldLocalElasticContactForce[3],
                                                        double LocalElasticContactForce[3],
                                                        double LocalDeltDisp[3],
@@ -122,8 +122,8 @@ namespace Kratos {
                                                        bool& sliding,
                                                        double LocalCoordSystem[3][3]) {
 
-        ContactInfoContinuumSphericParticle* p_element1 = dynamic_cast<ContactInfoContinuumSphericParticle*>(element1);
-        ContactInfoContinuumSphericParticle* p_element2 = dynamic_cast<ContactInfoContinuumSphericParticle*>(element2);
+        ContactInfoSphericContinuumParticle* p_element1 = dynamic_cast<ContactInfoSphericContinuumParticle*>(element1);
+        ContactInfoSphericContinuumParticle* p_element2 = dynamic_cast<ContactInfoSphericContinuumParticle*>(element2);
 
         //Get equivalent Radius
         const double my_radius      = p_element1->GetParticleConicalDamageContactRadius();
@@ -210,7 +210,7 @@ namespace Kratos {
     // DEM-FEM INTERACTION //
     /////////////////////////
 
-    void DEM_Continuum_Conical_damage::InitializeDependentContactWithFEM(double effective_radius,
+    void DEM_D_Conical_damage_continuum::InitializeDependentContactWithFEM(double effective_radius,
                                                                          const double equiv_level_of_fouling,
                                                                          const double equiv_young,
                                                                          const double equiv_shear,
@@ -221,7 +221,7 @@ namespace Kratos {
         mKt = 4.0 * equiv_shear * mKn / equiv_young;
     }
 
-    void DEM_Continuum_Conical_damage::DamageContactWithFEM(ContactInfoContinuumSphericParticle* const element,
+    void DEM_D_Conical_damage_continuum::DamageContactWithFEM(ContactInfoSphericContinuumParticle* const element,
                                                             Condition* const wall,
                                                             double& effective_radius,
                                                             const double equiv_level_of_fouling,
@@ -253,7 +253,7 @@ namespace Kratos {
         mKt = 4.0 * equiv_shear * mKn / equiv_young;
     }
 
-    void DEM_Continuum_Conical_damage::CalculateForcesWithFEM(const ProcessInfo& r_process_info,
+    void DEM_D_Conical_damage_continuum::CalculateForcesWithFEM(const ProcessInfo& r_process_info,
                                                               const double OldLocalElasticContactForce[3],
                                                               double LocalElasticContactForce[3],
                                                               double LocalDeltDisp[3],
@@ -266,7 +266,7 @@ namespace Kratos {
                                                               Condition* const wall,
                                                               bool& sliding) {
 
-        ContactInfoContinuumSphericParticle* p_element = dynamic_cast<ContactInfoContinuumSphericParticle*>(element);
+        ContactInfoSphericContinuumParticle* p_element = dynamic_cast<ContactInfoSphericContinuumParticle*>(element);
 
         //Get effective Radius
         double effective_radius = p_element->GetParticleConicalDamageContactRadius();
@@ -344,10 +344,10 @@ namespace Kratos {
         }
     }
 
-    void DEM_Continuum_Conical_damage::CalculateViscoDampingForce(double LocalRelVel[3],
+    void DEM_D_Conical_damage_continuum::CalculateViscoDampingForce(double LocalRelVel[3],
                                                                   double ViscoDampingLocalContactForce[3],
-                                                                  ContactInfoContinuumSphericParticle* const element1,
-                                                                  ContactInfoContinuumSphericParticle* const element2) {
+                                                                  ContactInfoSphericContinuumParticle* const element1,
+                                                                  ContactInfoSphericContinuumParticle* const element2) {
 
         const double my_mass    = element1->GetMass();
         const double other_mass = element2->GetMass();
@@ -366,14 +366,14 @@ namespace Kratos {
         ViscoDampingLocalContactForce[2] = - equiv_visco_damp_coeff_normal     * LocalRelVel[2];
     }
 
-    void DEM_Continuum_Conical_damage::CalculateTangentialForce(const double normal_contact_force,
+    void DEM_D_Conical_damage_continuum::CalculateTangentialForce(const double normal_contact_force,
                                                                 const double OldLocalElasticContactForce[3],
                                                                 double LocalElasticContactForce[3],
                                                                 double ViscoDampingLocalContactForce[3],
                                                                 const double LocalDeltDisp[3],
                                                                 bool& sliding,
-                                                                ContactInfoContinuumSphericParticle* const element1,
-                                                                ContactInfoContinuumSphericParticle* const element2,
+                                                                ContactInfoSphericContinuumParticle* const element1,
+                                                                ContactInfoSphericContinuumParticle* const element2,
                                                                 const double original_equiv_radius,
                                                                 const double equiv_young,
                                                                 double indentation,
@@ -476,9 +476,9 @@ namespace Kratos {
         }
     }
 
-    void DEM_Continuum_Conical_damage::CalculateViscoDampingForceWithFEM(double LocalRelVel[3],
+    void DEM_D_Conical_damage_continuum::CalculateViscoDampingForceWithFEM(double LocalRelVel[3],
                                                                          double ViscoDampingLocalContactForce[3],
-                                                                         ContactInfoContinuumSphericParticle* const element,
+                                                                         ContactInfoSphericContinuumParticle* const element,
                                                                          Condition* const wall) {
 
         const double my_mass    = element->GetMass();
@@ -492,13 +492,13 @@ namespace Kratos {
 
     }
 
-    void DEM_Continuum_Conical_damage::CalculateTangentialForceWithFEM(const double normal_contact_force,
+    void DEM_D_Conical_damage_continuum::CalculateTangentialForceWithFEM(const double normal_contact_force,
                                                                        const double OldLocalElasticContactForce[3],
                                                                        double LocalElasticContactForce[3],
                                                                        double ViscoDampingLocalContactForce[3],
                                                                        const double LocalDeltDisp[3],
                                                                        bool& sliding,
-                                                                       ContactInfoContinuumSphericParticle* const element,
+                                                                       ContactInfoSphericContinuumParticle* const element,
                                                                        Condition* const wall,
                                                                        const double original_effective_radius,
                                                                        const double equiv_young,

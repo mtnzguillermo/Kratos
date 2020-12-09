@@ -12,31 +12,31 @@
 // External includes
 
 // Project includes
-#include "contact_info_continuum_spheric_particle.h"
+#include "contact_info_spheric_continuum_particle.h"
 
 namespace Kratos
 {
 
-    ContactInfoContinuumSphericParticle::ContactInfoContinuumSphericParticle()
+    ContactInfoSphericContinuumParticle::ContactInfoSphericContinuumParticle()
         : SphericContinuumParticle() {}
 
-    ContactInfoContinuumSphericParticle::ContactInfoContinuumSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry)
+    ContactInfoSphericContinuumParticle::ContactInfoSphericContinuumParticle(IndexType NewId, GeometryType::Pointer pGeometry)
         : SphericContinuumParticle(NewId, pGeometry) {}
 
-    ContactInfoContinuumSphericParticle::ContactInfoContinuumSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties)
+    ContactInfoSphericContinuumParticle::ContactInfoSphericContinuumParticle(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties)
         : SphericContinuumParticle(NewId, pGeometry, pProperties) {}
 
-    ContactInfoContinuumSphericParticle::ContactInfoContinuumSphericParticle(IndexType NewId, NodesArrayType const& ThisNodes)
+    ContactInfoSphericContinuumParticle::ContactInfoSphericContinuumParticle(IndexType NewId, NodesArrayType const& ThisNodes)
         : SphericContinuumParticle(NewId, ThisNodes) {}
 
-    ContactInfoContinuumSphericParticle::ContactInfoContinuumSphericParticle(Element::Pointer p_continuum_spheric_particle)
+    ContactInfoSphericContinuumParticle::ContactInfoSphericContinuumParticle(Element::Pointer p_continuum_spheric_particle)
     {
         GeometryType::Pointer p_geom = p_continuum_spheric_particle->pGetGeometry();
         PropertiesType::Pointer pProperties = p_continuum_spheric_particle->pGetProperties();
-        ContactInfoContinuumSphericParticle(p_continuum_spheric_particle->Id(), p_geom, pProperties);
+        ContactInfoSphericContinuumParticle(p_continuum_spheric_particle->Id(), p_geom, pProperties);
     }
 
-    ContactInfoContinuumSphericParticle& ContactInfoContinuumSphericParticle::operator=(const ContactInfoContinuumSphericParticle& rOther) {
+    ContactInfoSphericContinuumParticle& ContactInfoSphericContinuumParticle::operator=(const ContactInfoSphericContinuumParticle& rOther) {
 
         SphericContinuumParticle::operator=(rOther);
 
@@ -56,14 +56,14 @@ namespace Kratos
         return *this;
     }
 
-    Element::Pointer ContactInfoContinuumSphericParticle::Create(IndexType NewId, NodesArrayType const& ThisNodes, PropertiesType::Pointer pProperties) const
+    Element::Pointer ContactInfoSphericContinuumParticle::Create(IndexType NewId, NodesArrayType const& ThisNodes, PropertiesType::Pointer pProperties) const
     {
         GeometryType::Pointer p_geom = GetGeometry().Create(ThisNodes);
 
-        return Element::Pointer(new ContactInfoContinuumSphericParticle(NewId, p_geom, pProperties));
+        return Element::Pointer(new ContactInfoSphericContinuumParticle(NewId, p_geom, pProperties));
     }
 
-    void ContactInfoContinuumSphericParticle::ComputeNewNeighboursHistoricalData(DenseVector<int>& temp_neighbours_ids,
+    void ContactInfoSphericContinuumParticle::ComputeNewNeighboursHistoricalData(DenseVector<int>& temp_neighbours_ids,
                                                                                  std::vector<array_1d<double, 3> >& temp_neighbour_elastic_contact_forces)
     {
         std::vector<array_1d<double, 3> > temp_neighbour_elastic_extra_contact_forces;
@@ -130,7 +130,7 @@ namespace Kratos
         mNeighbourCohesion.swap(temp_neighbour_cohesion);
     }
 
-    void ContactInfoContinuumSphericParticle::ComputeNewRigidFaceNeighboursHistoricalData()
+    void ContactInfoSphericContinuumParticle::ComputeNewRigidFaceNeighboursHistoricalData()
     {
         array_1d<double, 3> vector_of_zeros = ZeroVector(3);
         std::vector<DEMWall*>& rNeighbours = this->mNeighbourRigidFaces;
@@ -189,25 +189,25 @@ namespace Kratos
         mNeighbourRigidCohesion.swap(temp_cohesion);
     }
 
-    double ContactInfoContinuumSphericParticle::GetParticleInitialCohesion()            { return SphericContinuumParticle::GetFastProperties()->GetParticleInitialCohesion();            }
-    double ContactInfoContinuumSphericParticle::GetAmountOfCohesionFromStress()         { return SphericContinuumParticle::GetFastProperties()->GetAmountOfCohesionFromStress();         }
-    double ContactInfoContinuumSphericParticle::GetParticleConicalDamageContactRadius() { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageContactRadius(); }
-    double ContactInfoContinuumSphericParticle::GetParticleConicalDamageMaxStress()     { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageMaxStress();     }
-    double ContactInfoContinuumSphericParticle::GetParticleConicalDamageGamma()         { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageGamma();         }
-    double ContactInfoContinuumSphericParticle::GetLevelOfFouling()                     { return SphericContinuumParticle::GetFastProperties()->GetLevelOfFouling();                     }
+    double ContactInfoSphericContinuumParticle::GetParticleInitialCohesion()            { return SphericContinuumParticle::GetFastProperties()->GetParticleInitialCohesion();            }
+    double ContactInfoSphericContinuumParticle::GetAmountOfCohesionFromStress()         { return SphericContinuumParticle::GetFastProperties()->GetAmountOfCohesionFromStress();         }
+    double ContactInfoSphericContinuumParticle::GetParticleConicalDamageContactRadius() { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageContactRadius(); }
+    double ContactInfoSphericContinuumParticle::GetParticleConicalDamageMaxStress()     { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageMaxStress();     }
+    double ContactInfoSphericContinuumParticle::GetParticleConicalDamageGamma()         { return SphericContinuumParticle::GetFastProperties()->GetParticleConicalDamageGamma();         }
+    double ContactInfoSphericContinuumParticle::GetLevelOfFouling()                     { return SphericContinuumParticle::GetFastProperties()->GetLevelOfFouling();                     }
 
-    void   ContactInfoContinuumSphericParticle::SetParticleInitialCohesionFromProperties(double* particle_initial_cohesion)          { SphericContinuumParticle::GetFastProperties()->SetParticleInitialCohesionFromProperties( particle_initial_cohesion);  }
-    void   ContactInfoContinuumSphericParticle::SetAmountOfCohesionFromStressFromProperties(double* amount_of_cohesion_from_stress)  { SphericContinuumParticle::GetFastProperties()->SetAmountOfCohesionFromStressFromProperties( amount_of_cohesion_from_stress);  }
-    void   ContactInfoContinuumSphericParticle::SetParticleConicalDamageContactRadiusFromProperties(double* particle_contact_radius) { SphericContinuumParticle::GetFastProperties()->SetParticleConicalDamageContactRadiusFromProperties( particle_contact_radius); }
-    void   ContactInfoContinuumSphericParticle::SetParticleConicalDamageMaxStressFromProperties(double* particle_max_stress)         { SphericContinuumParticle::GetFastProperties()->SetParticleConicalDamageMaxStressFromProperties( particle_max_stress);         }
-    void   ContactInfoContinuumSphericParticle::SetParticleConicalDamageGammaFromProperties(double* particle_gamma)                  { SphericContinuumParticle::GetFastProperties()->SetParticleConicalDamageGammaFromProperties( particle_gamma);                  }
-    void   ContactInfoContinuumSphericParticle::SetLevelOfFoulingFromProperties(double* level_of_fouling)                            { SphericContinuumParticle::GetFastProperties()->SetLevelOfFoulingFromProperties( level_of_fouling);                            }
+    void   ContactInfoSphericContinuumParticle::SetParticleInitialCohesionFromProperties(double* particle_initial_cohesion)          { SphericContinuumParticle::GetFastProperties()->SetParticleInitialCohesionFromProperties( particle_initial_cohesion);  }
+    void   ContactInfoSphericContinuumParticle::SetAmountOfCohesionFromStressFromProperties(double* amount_of_cohesion_from_stress)  { SphericContinuumParticle::GetFastProperties()->SetAmountOfCohesionFromStressFromProperties( amount_of_cohesion_from_stress);  }
+    void   ContactInfoSphericContinuumParticle::SetParticleConicalDamageContactRadiusFromProperties(double* particle_contact_radius) { SphericContinuumParticle::GetFastProperties()->SetParticleConicalDamageContactRadiusFromProperties( particle_contact_radius); }
+    void   ContactInfoSphericContinuumParticle::SetParticleConicalDamageMaxStressFromProperties(double* particle_max_stress)         { SphericContinuumParticle::GetFastProperties()->SetParticleConicalDamageMaxStressFromProperties( particle_max_stress);         }
+    void   ContactInfoSphericContinuumParticle::SetParticleConicalDamageGammaFromProperties(double* particle_gamma)                  { SphericContinuumParticle::GetFastProperties()->SetParticleConicalDamageGammaFromProperties( particle_gamma);                  }
+    void   ContactInfoSphericContinuumParticle::SetLevelOfFoulingFromProperties(double* level_of_fouling)                            { SphericContinuumParticle::GetFastProperties()->SetLevelOfFoulingFromProperties( level_of_fouling);                            }
 
-    double ContactInfoContinuumSphericParticle::SlowGetParticleInitialCohesion()            { return GetProperties()[PARTICLE_INITIAL_COHESION]; }
-    double ContactInfoContinuumSphericParticle::SlowGetAmountOfCohesionFromStress()         { return GetProperties()[AMOUNT_OF_COHESION_FROM_STRESS]; }
-    double ContactInfoContinuumSphericParticle::SlowGetParticleConicalDamageContactRadius() { return GetProperties()[CONICAL_DAMAGE_CONTACT_RADIUS];  }
-    double ContactInfoContinuumSphericParticle::SlowGetParticleConicalDamageMaxStress()     { return GetProperties()[CONICAL_DAMAGE_MAX_STRESS];      }
-    double ContactInfoContinuumSphericParticle::SlowGetParticleConicalDamageGamma()         { return GetProperties()[CONICAL_DAMAGE_GAMMA];           }
-    double ContactInfoContinuumSphericParticle::SlowGetLevelOfFouling()                     { return GetProperties()[LEVEL_OF_FOULING];               }
+    double ContactInfoSphericContinuumParticle::SlowGetParticleInitialCohesion()            { return GetProperties()[PARTICLE_INITIAL_COHESION]; }
+    double ContactInfoSphericContinuumParticle::SlowGetAmountOfCohesionFromStress()         { return GetProperties()[AMOUNT_OF_COHESION_FROM_STRESS]; }
+    double ContactInfoSphericContinuumParticle::SlowGetParticleConicalDamageContactRadius() { return GetProperties()[CONICAL_DAMAGE_CONTACT_RADIUS];  }
+    double ContactInfoSphericContinuumParticle::SlowGetParticleConicalDamageMaxStress()     { return GetProperties()[CONICAL_DAMAGE_MAX_STRESS];      }
+    double ContactInfoSphericContinuumParticle::SlowGetParticleConicalDamageGamma()         { return GetProperties()[CONICAL_DAMAGE_GAMMA];           }
+    double ContactInfoSphericContinuumParticle::SlowGetLevelOfFouling()                     { return GetProperties()[LEVEL_OF_FOULING];               }
 
 }  // namespace Kratos.

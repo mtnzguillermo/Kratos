@@ -1,20 +1,20 @@
 // Project includes
-#include "DEM_beam_constitutive_law.h"
+#include "DEM_Beam_CL.h"
 #include "custom_elements/spheric_continuum_particle.h"
 
 namespace Kratos {
 
-    DEMBeamConstitutiveLaw::DEMBeamConstitutiveLaw() {} // Class DEMBeamConstitutiveLaw
+    DEM_Beam::DEM_Beam() {} // Class DEM_Beam
 
-    void DEMBeamConstitutiveLaw::Initialize(SphericContinuumParticle* owner_sphere) {}
+    void DEM_Beam::Initialize(SphericContinuumParticle* owner_sphere) {}
 
-    void DEMBeamConstitutiveLaw::SetConstitutiveLawInProperties(Properties::Pointer pProp, bool verbose) {
-        if(verbose) KRATOS_INFO("DEM") << "Assigning DEMBeamConstitutiveLaw to Properties " << pProp->Id() << std::endl;
+    void DEM_Beam::SetConstitutiveLawInProperties(Properties::Pointer pProp, bool verbose) {
+        if(verbose) KRATOS_INFO("DEM") << "Assigning DEM_Beam to Properties " << pProp->Id() << std::endl;
         pProp->SetValue(DEM_BEAM_CONSTITUTIVE_LAW_POINTER, this->Clone());
         this->Check(pProp);
     }
 
-    void DEMBeamConstitutiveLaw::Check(Properties::Pointer pProp) const {
+    void DEM_Beam::Check(Properties::Pointer pProp) const {
 
         if(!pProp->Has(STATIC_FRICTION)) {
             if(!pProp->Has(FRICTION)) { //deprecated since April 6th, 2020
@@ -30,7 +30,7 @@ namespace Kratos {
         if(!pProp->Has(DYNAMIC_FRICTION)) {
             if(!pProp->Has(FRICTION)) { //deprecated since April 6th, 2020
                 KRATOS_WARNING("DEM")<<std::endl;
-                KRATOS_WARNING("DEM")<<"WARNING: Variable DYNAMIC_FRICTION or FRICTION should be present in the properties when using DEMBeamConstitutiveLaw. 0.0 value assigned by default."<<std::endl;
+                KRATOS_WARNING("DEM")<<"WARNING: Variable DYNAMIC_FRICTION or FRICTION should be present in the properties when using DEM_Beam. 0.0 value assigned by default."<<std::endl;
                 KRATOS_WARNING("DEM")<<std::endl;
                 pProp->GetValue(DYNAMIC_FRICTION) = 0.0;
             }
@@ -40,106 +40,106 @@ namespace Kratos {
         }
         if(!pProp->Has(YOUNG_MODULUS)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable YOUNG_MODULUS should be present in the properties when using DEMBeamConstitutiveLaw. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable YOUNG_MODULUS should be present in the properties when using DEM_Beam. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(YOUNG_MODULUS) = 0.0;
         }
         if(!pProp->Has(POISSON_RATIO)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable POISSON_RATIO should be present in the properties when using DEMBeamConstitutiveLaw. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable POISSON_RATIO should be present in the properties when using DEM_Beam. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(POISSON_RATIO) = 0.0;
         }
         if(!pProp->Has(DAMPING_GAMMA)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable DAMPING_GAMMA should be present in the properties when using DEMBeamConstitutiveLaw. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable DAMPING_GAMMA should be present in the properties when using DEM_Beam. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(DAMPING_GAMMA) = 0.0;
         }
         if(!pProp->Has(COEFFICIENT_OF_RESTITUTION)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable COEFFICIENT_OF_RESTITUTION should be present in the properties when using DEMBeamConstitutiveLaw. 0.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable COEFFICIENT_OF_RESTITUTION should be present in the properties when using DEM_Beam. 0.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(COEFFICIENT_OF_RESTITUTION) = 0.0;
         }
 
         if(!pProp->Has(CROSS_AREA)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable CROSS_AREA should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable CROSS_AREA should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(CROSS_AREA) = 1.0;
         }
 
         if(!pProp->Has(BEAM_LENGTH)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_LENGTH should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_LENGTH should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(BEAM_LENGTH) = 1.0;
         }
 
         if(!pProp->Has(BEAM_PARTICLES_DISTANCE)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_PARTICLES_DISTANCE should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_PARTICLES_DISTANCE should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(BEAM_PARTICLES_DISTANCE) = 0.0;
         }
 
         if(!pProp->Has(I22)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable I22 should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable I22 should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(I22) = 1.0;
         }
 
         if(!pProp->Has(I33)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable I33 should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable I33 should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(I33) = 1.0;
         }
 
         if(!pProp->Has(BEAM_INERTIA_ROT_UNIT_LENGHT_X)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_X should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_X should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(BEAM_INERTIA_ROT_UNIT_LENGHT_X) = 0.0;
         }
 
         if(!pProp->Has(BEAM_INERTIA_ROT_UNIT_LENGHT_Y)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_Y should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_Y should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(BEAM_INERTIA_ROT_UNIT_LENGHT_Y) = 1.0;
         }
 
         if(!pProp->Has(BEAM_INERTIA_ROT_UNIT_LENGHT_Z)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_Z should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_Z should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(BEAM_INERTIA_ROT_UNIT_LENGHT_Z) = 1.0;
         }
 
         if(!pProp->Has(DEM_BEAM_CONSTITUTIVE_LAW_POINTER)) {
             KRATOS_WARNING("DEM")<<std::endl;
-            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_Z should be present in the properties when using DEMBeamConstitutiveLaw. 1.0 value assigned by default."<<std::endl;
+            KRATOS_WARNING("DEM")<<"WARNING: Variable BEAM_INERTIA_ROT_UNIT_LENGHT_Z should be present in the properties when using DEM_Beam. 1.0 value assigned by default."<<std::endl;
             KRATOS_WARNING("DEM")<<std::endl;
             pProp->GetValue(BEAM_INERTIA_ROT_UNIT_LENGHT_Z) = 1.0;
         }
     }
 
-    std::string DEMBeamConstitutiveLaw::GetTypeOfLaw() {
+    std::string DEM_Beam::GetTypeOfLaw() {
         std::string type_of_law = "Beam";
         return type_of_law;
     }
 
-    DEMBeamConstitutiveLaw::Pointer DEMBeamConstitutiveLaw::Clone() const {
-        DEMBeamConstitutiveLaw::Pointer p_clone(new DEMBeamConstitutiveLaw(*this));
+    DEM_Beam::Pointer DEM_Beam::Clone() const {
+        DEM_Beam::Pointer p_clone(new DEM_Beam(*this));
         return p_clone;
     }
 
-    DEMBeamConstitutiveLaw::~DEMBeamConstitutiveLaw() {}
+    DEM_Beam::~DEM_Beam() {}
 
-    void DEMBeamConstitutiveLaw::CalculateElasticConstants(double& kn_el,
+    void DEM_Beam::CalculateElasticConstants(double& kn_el,
                                                            double& kt_el_0,
                                                            double& kt_el_1,
                                                            double initial_dist,
@@ -162,7 +162,7 @@ namespace Kratos {
         KRATOS_CATCH("")
     }
 
-    void DEMBeamConstitutiveLaw::CalculateViscoDampingCoeff(double& equiv_visco_damp_coeff_normal,
+    void DEM_Beam::CalculateViscoDampingCoeff(double& equiv_visco_damp_coeff_normal,
                                                             double& equiv_visco_damp_coeff_tangential_0,
                                                             double& equiv_visco_damp_coeff_tangential_1,
                                                             SphericContinuumParticle* element1,
@@ -187,7 +187,7 @@ namespace Kratos {
         KRATOS_CATCH("")
     }
 
-    void DEMBeamConstitutiveLaw::CalculateForces(const ProcessInfo& r_process_info,
+    void DEM_Beam::CalculateForces(const ProcessInfo& r_process_info,
                                                  double OldLocalElasticContactForce[3],
                                                  double LocalElasticContactForce[3],
                                                  double LocalElasticExtraContactForce[3],
@@ -245,7 +245,7 @@ namespace Kratos {
         KRATOS_CATCH("")
     }
 
-    void DEMBeamConstitutiveLaw::CalculateNormalForces(double LocalElasticContactForce[3],
+    void DEM_Beam::CalculateNormalForces(double LocalElasticContactForce[3],
                                                        const double kn_el,
                                                        double indentation) {
 
@@ -256,7 +256,7 @@ namespace Kratos {
         KRATOS_CATCH("")
     }
 
-    void DEMBeamConstitutiveLaw::CalculateTangentialForces(double OldLocalElasticContactForce[3],
+    void DEM_Beam::CalculateTangentialForces(double OldLocalElasticContactForce[3],
                                                            double LocalElasticContactForce[3],
                                                            double LocalDeltDisp[3],
                                                            const double kt_el_0,
@@ -270,7 +270,7 @@ namespace Kratos {
         KRATOS_CATCH("")
     }
 
-    void DEMBeamConstitutiveLaw::CalculateViscoDamping(double LocalRelVel[3],
+    void DEM_Beam::CalculateViscoDamping(double LocalRelVel[3],
                                                        double ViscoDampingLocalContactForce[3],
                                                        double equiv_visco_damp_coeff_normal,
                                                        double equiv_visco_damp_coeff_tangential_0,
@@ -285,7 +285,7 @@ namespace Kratos {
         KRATOS_CATCH("")
     }
 
-    void DEMBeamConstitutiveLaw::ComputeParticleRotationalMoments(SphericContinuumParticle* element,
+    void DEM_Beam::ComputeParticleRotationalMoments(SphericContinuumParticle* element,
                                                                   SphericContinuumParticle* neighbor,
                                                                   double equiv_young,
                                                                   double distance,
@@ -354,6 +354,6 @@ namespace Kratos {
         KRATOS_CATCH("")
     }//ComputeParticleRotationalMoments
 
-    bool DEMBeamConstitutiveLaw::CheckRequirementsOfStressTensor() { return false; }
+    bool DEM_Beam::CheckRequirementsOfStressTensor() { return false; }
 
 } // namespace Kratos

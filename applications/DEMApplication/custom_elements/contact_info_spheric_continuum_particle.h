@@ -1,7 +1,7 @@
 //   $Author: Joaquín Irazábal jirazabal@cimne.upc.edu
 
-#if !defined(KRATOS_CONTACT_INFO_CONTINUUM_SPHERIC_PARTICLE_H_INCLUDED)
-#define  KRATOS_CONTACT_INFO_CONTINUUM_SPHERIC_PARTICLE_H_INCLUDED
+#if !defined(KRATOS_CONTACT_INFO_SPHERIC_CONTINUUM_PARTICLE_H_INCLUDED)
+#define  KRATOS_CONTACT_INFO_SPHERIC_CONTINUUM_PARTICLE_H_INCLUDED
 
 // System includes
 #include <string>
@@ -15,37 +15,37 @@
 
 namespace Kratos {
 
-    class KRATOS_API(DEM_APPLICATION) ContactInfoContinuumSphericParticle : public SphericContinuumParticle
+    class KRATOS_API(DEM_APPLICATION) ContactInfoSphericContinuumParticle : public SphericContinuumParticle
     {
         public:
 
-        /// Pointer definition of ContactInfoContinuumSphericParticle
-        KRATOS_CLASS_INTRUSIVE_POINTER_DEFINITION(ContactInfoContinuumSphericParticle);
+        /// Pointer definition of ContactInfoSphericContinuumParticle
+        KRATOS_CLASS_INTRUSIVE_POINTER_DEFINITION(ContactInfoSphericContinuumParticle);
 
-        ContactInfoContinuumSphericParticle();
-        ContactInfoContinuumSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry);
-        ContactInfoContinuumSphericParticle(IndexType NewId, NodesArrayType const& ThisNodes);
-        ContactInfoContinuumSphericParticle(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties);
-        ContactInfoContinuumSphericParticle(Element::Pointer p_continuum_spheric_particle);
+        ContactInfoSphericContinuumParticle();
+        ContactInfoSphericContinuumParticle(IndexType NewId, GeometryType::Pointer pGeometry);
+        ContactInfoSphericContinuumParticle(IndexType NewId, NodesArrayType const& ThisNodes);
+        ContactInfoSphericContinuumParticle(IndexType NewId, GeometryType::Pointer pGeometry,  PropertiesType::Pointer pProperties);
+        ContactInfoSphericContinuumParticle(Element::Pointer p_continuum_spheric_particle);
 
         Element::Pointer Create(IndexType NewId, NodesArrayType const& ThisNodes, PropertiesType::Pointer pProperties) const override;
 
         /// Destructor.
-        virtual ~ContactInfoContinuumSphericParticle(){}
+        virtual ~ContactInfoSphericContinuumParticle(){}
 
-        ContactInfoContinuumSphericParticle& operator=(const ContactInfoContinuumSphericParticle& rOther);
+        ContactInfoSphericContinuumParticle& operator=(const ContactInfoSphericContinuumParticle& rOther);
 
         virtual std::string Info() const override
         {
             std::stringstream buffer;
-            buffer << "ContactInfoContinuumSphericParticle" ;
+            buffer << "ContactInfoSphericContinuumParticle" ;
             return buffer.str();
         }
 
         /// Print information about this object.
         void PrintInfo(std::ostream& rOStream) const override
         {
-            rOStream << "ContactInfoContinuumSphericParticle";
+            rOStream << "ContactInfoSphericContinuumParticle";
         }
 
         /// Print object's data.
@@ -108,13 +108,13 @@ namespace Kratos {
             KRATOS_SERIALIZE_LOAD_BASE_CLASS(rSerializer, SphericContinuumParticle);
         }
 
-    }; // Class ContactInfoContinuumSphericParticle
+    }; // Class ContactInfoSphericContinuumParticle
 
     /// input stream function
-    inline std::istream& operator >> (std::istream& rIStream, ContactInfoContinuumSphericParticle& rThis){return rIStream;}
+    inline std::istream& operator >> (std::istream& rIStream, ContactInfoSphericContinuumParticle& rThis){return rIStream;}
 
     /// output stream function
-    inline std::ostream& operator << (std::ostream& rOStream, const ContactInfoContinuumSphericParticle& rThis)
+    inline std::ostream& operator << (std::ostream& rOStream, const ContactInfoSphericContinuumParticle& rThis)
     {
         rThis.PrintInfo(rOStream);
         rOStream << std::endl;
@@ -125,4 +125,4 @@ namespace Kratos {
 
 }  // namespace Kratos.
 
-#endif // KRATOS_CONTACT_INFO_CONTINUUM_SPHERIC_PARTICLE_H_INCLUDED  defined
+#endif // KRATOS_CONTACT_INFO_SPHERIC_CONTINUUM_PARTICLE_H_INCLUDED  defined

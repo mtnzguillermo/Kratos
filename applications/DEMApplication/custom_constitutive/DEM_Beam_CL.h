@@ -1,6 +1,6 @@
 
-#if !defined(DEM_BEAM_CONSTITUTIVE_LAW_H_INCLUDED)
-#define  DEM_BEAM_CONSTITUTIVE_LAW_H_INCLUDED
+#if !defined(DEM_BEAM_CL_H_INCLUDED)
+#define  DEM_BEAM_CL_H_INCLUDED
 
 /* Project includes */
 #include "includes/define.h"
@@ -21,13 +21,13 @@ namespace Kratos {
     class Properties; //forward declaration
     class SphericContinuumParticle; // forward declaration of spheric cont particle
 
-    class KRATOS_API(DEM_APPLICATION) DEMBeamConstitutiveLaw : public Flags {
+    class KRATOS_API(DEM_APPLICATION) DEM_Beam : public Flags {
 
     public:
 
-        KRATOS_CLASS_POINTER_DEFINITION(DEMBeamConstitutiveLaw);
+        KRATOS_CLASS_POINTER_DEFINITION(DEM_Beam);
 
-        DEMBeamConstitutiveLaw();
+        DEM_Beam();
 
         virtual void Initialize(SphericContinuumParticle* owner_sphere);
 
@@ -37,9 +37,9 @@ namespace Kratos {
 
         virtual std::string GetTypeOfLaw();
 
-        virtual ~DEMBeamConstitutiveLaw();
+        virtual ~DEM_Beam();
 
-        virtual DEMBeamConstitutiveLaw::Pointer Clone() const;
+        virtual DEM_Beam::Pointer Clone() const;
 
         virtual void CalculateElasticConstants(double& kn_el,
                                                double& kt_el_0,
@@ -133,8 +133,8 @@ namespace Kratos {
     };
 
     //This definition is done here to avoid recursive inclusion of header files
-    KRATOS_DEFINE_APPLICATION_VARIABLE(DEM_APPLICATION, DEMBeamConstitutiveLaw::Pointer, DEM_BEAM_CONSTITUTIVE_LAW_POINTER)
+    KRATOS_DEFINE_APPLICATION_VARIABLE(DEM_APPLICATION, DEM_Beam::Pointer, DEM_BEAM_CONSTITUTIVE_LAW_POINTER)
 
 } /* namespace Kratos.*/
-#endif /* DEM_BEAM_CONSTITUTIVE_LAW_H_INCLUDED  defined */
+#endif /* DEM_BEAM_CL_H_INCLUDED  defined */
 

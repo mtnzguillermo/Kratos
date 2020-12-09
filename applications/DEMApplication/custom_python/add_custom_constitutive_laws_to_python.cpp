@@ -42,14 +42,14 @@
 #include "../custom_constitutive/dem_kdem_fissured_rock_cl.h"
 #include "../custom_constitutive/DEM_sintering_continuum_CL.h"
 #include "../custom_constitutive/DEM_KDEM_fabric_CL.h"
-#include "../custom_constitutive/DEM_beam_constitutive_law.h"
+#include "../custom_constitutive/DEM_Beam_CL.h"
 #include "../custom_constitutive/DEM_ExponentialHC_CL.h"
 #include "../custom_constitutive/DEM_Dempack_torque_CL.h"
 #include "../custom_constitutive/DEM_Dempack_dev_CL.h"
 #include "../custom_constitutive/DEM_Dempack_2D_dev_CL.h"
 #include "../custom_constitutive/dem_d_linear_custom_constants_cl.h"
 #include "../custom_constitutive/DEM_D_Conical_damage_CL.h"
-#include "../custom_constitutive/DEM_continuum_Conical_damage_CL.h"
+#include "../custom_constitutive/DEM_D_Conical_damage_continuum_CL.h"
 #include "../custom_constitutive/dem_kdem_2d_cl.h"
 #include "../custom_constitutive/dem_kdem_fabric_2d_cl.h"
 
@@ -121,7 +121,7 @@ void AddCustomConstitutiveLawsToPython(pybind11::module& m) {
         .def(py::init<>())
         ;
 
-    py::class_<DEM_Continuum_Conical_damage, DEM_Continuum_Conical_damage::Pointer, DEMDiscontinuumConstitutiveLaw>(m, "DEM_Continuum_Conical_damage")
+    py::class_<DEM_D_Conical_damage_continuum, DEM_D_Conical_damage_continuum::Pointer, DEMDiscontinuumConstitutiveLaw>(m, "DEM_D_Conical_damage_continuum")
         .def(py::init<>())
         ;
 
@@ -245,16 +245,16 @@ void AddCustomConstitutiveLawsToPython(pybind11::module& m) {
 
     // DEM Beam Constitutive Laws:
 
-    py::class_<DEMBeamConstitutiveLaw, DEMBeamConstitutiveLaw::Pointer>(m, "DEMBeamConstitutiveLaw")
+    py::class_<DEM_Beam, DEM_Beam::Pointer>(m, "DEM_Beam")
         .def(py::init<>())
-        .def("Clone", &DEMBeamConstitutiveLaw::Clone)
-        .def("SetConstitutiveLawInProperties", &DEMBeamConstitutiveLaw::SetConstitutiveLawInProperties)
-        .def("GetTypeOfLaw", &DEMBeamConstitutiveLaw::GetTypeOfLaw)
-        .def("CheckRequirementsOfStressTensor", &DEMBeamConstitutiveLaw::CheckRequirementsOfStressTensor)
+        .def("Clone", &DEM_Beam::Clone)
+        .def("SetConstitutiveLawInProperties", &DEM_Beam::SetConstitutiveLawInProperties)
+        .def("GetTypeOfLaw", &DEM_Beam::GetTypeOfLaw)
+        .def("CheckRequirementsOfStressTensor", &DEM_Beam::CheckRequirementsOfStressTensor)
         ;
 
-    py::class_<Variable<DEMBeamConstitutiveLaw::Pointer>, Variable<DEMBeamConstitutiveLaw::Pointer>::Pointer>(m, "DEMBeamConstitutiveLawPointerVariable")
-        .def("__str__", PrintObject<Variable<DEMBeamConstitutiveLaw::Pointer>>)
+    py::class_<Variable<DEM_Beam::Pointer>, Variable<DEM_Beam::Pointer>::Pointer>(m, "DEM_BeamPointerVariable")
+        .def("__str__", PrintObject<Variable<DEM_Beam::Pointer>>)
         ;
 }
 

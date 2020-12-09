@@ -8,20 +8,20 @@
 // System includes
 #include <string>
 #include <iostream>
-#include "contact_info_continuum_spheric_particle.h"
+#include "contact_info_spheric_continuum_particle.h"
 #include "../custom_constitutive/DEM_continuum_constitutive_law.h"
-#include "../custom_constitutive/DEM_beam_constitutive_law.h"
+#include "../custom_constitutive/DEM_Beam_CL.h"
 
 namespace Kratos {
 
-    class KRATOS_API(DEM_APPLICATION) BeamParticle : public ContactInfoContinuumSphericParticle {
+    class KRATOS_API(DEM_APPLICATION) BeamParticle : public ContactInfoSphericContinuumParticle {
 
         public:
 
         /// Pointer definition of BeamParticle
         KRATOS_CLASS_POINTER_DEFINITION(BeamParticle);
 
-        typedef ContactInfoContinuumSphericParticle BaseType;
+        typedef ContactInfoSphericContinuumParticle BaseType;
         typedef BaseType::ParticleDataBuffer BaseBufferType;
         typedef std::unique_ptr<BaseType::ParticleDataBuffer> BaseBufferPointerType;
 
@@ -70,9 +70,9 @@ namespace Kratos {
 
         void FinalizeSolutionStep(const ProcessInfo& r_process_info) override;
 
-        using ContactInfoContinuumSphericParticle::CalculateOnContinuumContactElements;
+        using ContactInfoSphericContinuumParticle::CalculateOnContinuumContactElements;
 
-        std::vector<Kratos::DEMBeamConstitutiveLaw::Pointer> mBeamConstitutiveLawArray;
+        std::vector<Kratos::DEM_Beam::Pointer> mBeamConstitutiveLawArray;
 
         private:
 

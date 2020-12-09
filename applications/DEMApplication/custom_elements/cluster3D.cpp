@@ -131,11 +131,11 @@ namespace Kratos {
         bool contact_info_element = false;
         bool beam_element = false;
         if (GetProperties()[BREAKABLE_CLUSTER]) breakable = true;
-        if (GetProperties()[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_D_Conical_damage" || GetProperties()[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_Continuum_Conical_damage" || GetProperties()[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_D_Stress_Dependent_Cohesive") contact_info_element = true;
-        if (GetProperties()[DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEMBeamConstitutiveLaw") beam_element = true;
+        if (GetProperties()[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_D_Conical_damage" || GetProperties()[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_D_Conical_damage_continuum" || GetProperties()[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_D_Stress_Dependent_Cohesive") contact_info_element = true;
+        if (GetProperties()[DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] == "DEM_Beam") beam_element = true;
 
         if (continuum_strategy) {
-            if (contact_info_element) ElementNameString= "ContactInfoContinuumSphericParticle3D";
+            if (contact_info_element) ElementNameString= "ContactInfoSphericContinuumParticle3D";
             else ElementNameString= "SphericContinuumParticle3D";
         }
         else if (contact_info_element) ElementNameString= "ContactInfoSphericParticle3D";

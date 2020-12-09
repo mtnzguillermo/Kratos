@@ -35,9 +35,9 @@
 #include "custom_constitutive/DEM_D_Stress_dependent_cohesive_CL.h"
 #include "custom_constitutive/dem_d_linear_custom_constants_cl.h"
 #include "custom_constitutive/DEM_D_Conical_damage_CL.h"
-#include "custom_constitutive/DEM_continuum_Conical_damage_CL.h"
+#include "custom_constitutive/DEM_D_Conical_damage_continuum_CL.h"
 #include "custom_constitutive/DEM_KDEM_fabric_CL.h"
-#include "custom_constitutive/DEM_beam_constitutive_law.h"
+#include "custom_constitutive/DEM_Beam_CL.h"
 #include "custom_constitutive/DEM_KDEM_Rankine_CL.h"
 #include "custom_constitutive/DEM_KDEM_CamClay_CL.h"
 #include "custom_constitutive/DEM_ExponentialHC_CL.h"
@@ -61,7 +61,7 @@ KRATOS_CREATE_VARIABLE(std::string, DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME)
 KRATOS_CREATE_VARIABLE(std::string, DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME)
 KRATOS_CREATE_VARIABLE(DEMDiscontinuumConstitutiveLaw::Pointer, DEM_DISCONTINUUM_CONSTITUTIVE_LAW_POINTER)
 KRATOS_CREATE_VARIABLE(DEMContinuumConstitutiveLaw::Pointer, DEM_CONTINUUM_CONSTITUTIVE_LAW_POINTER)
-KRATOS_CREATE_VARIABLE(DEMBeamConstitutiveLaw::Pointer, DEM_BEAM_CONSTITUTIVE_LAW_POINTER)
+KRATOS_CREATE_VARIABLE(DEM_Beam::Pointer, DEM_BEAM_CONSTITUTIVE_LAW_POINTER)
 
 //scheme
 KRATOS_CREATE_VARIABLE(std::string, DEM_TRANSLATIONAL_INTEGRATION_SCHEME_NAME)
@@ -489,7 +489,7 @@ KratosDEMApplication::KratosDEMApplication() : KratosApplication("DEMApplication
     mRigidBodyElement3D(0, Element::GeometryType::Pointer(new Point3D<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mShipElement3D(0, Element::GeometryType::Pointer(new Point3D<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mContactInfoSphericParticle3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
-    mContactInfoContinuumSphericParticle3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
+    mContactInfoSphericContinuumParticle3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mCluster3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mSingleSphereCluster3D(0, Element::GeometryType::Pointer(new Sphere3D1<Node<3> >(Element::GeometryType::PointsArrayType(1)))),
     mMapCon3D3N(0, Element::GeometryType::Pointer(new Triangle3D3<Node<3> >(Element::GeometryType::PointsArrayType(3)))) {}
@@ -907,7 +907,7 @@ void KratosDEMApplication::Register() {
     KRATOS_REGISTER_ELEMENT("RigidBodyElement3D", mRigidBodyElement3D)
     KRATOS_REGISTER_ELEMENT("ShipElement3D", mShipElement3D)
     KRATOS_REGISTER_ELEMENT("ContactInfoSphericParticle3D", mContactInfoSphericParticle3D)
-    KRATOS_REGISTER_ELEMENT("ContactInfoContinuumSphericParticle3D", mContactInfoContinuumSphericParticle3D)
+    KRATOS_REGISTER_ELEMENT("ContactInfoSphericContinuumParticle3D", mContactInfoSphericContinuumParticle3D)
     KRATOS_REGISTER_ELEMENT("Cluster3D", mCluster3D)
     KRATOS_REGISTER_ELEMENT("SingleSphereCluster3D", mSingleSphereCluster3D)
 
@@ -936,20 +936,21 @@ void KratosDEMApplication::Register() {
     Serializer::Register("DEM_D_Stress_Dependent_Cohesive", DEM_D_Stress_Dependent_Cohesive());
     Serializer::Register("DEM_D_Linear_Custom_Constants", DEM_D_Linear_Custom_Constants());
     Serializer::Register("DEM_D_Conical_damage", DEM_D_Conical_damage());
-    Serializer::Register("DEM_Continuum_Conical_damage", DEM_Continuum_Conical_damage());
+    Serializer::Register("DEM_D_Conical_damage_continuum", DEM_D_Conical_damage_continuum());
     Serializer::Register("DEM_D_Hertz_viscous_Coulomb_Nestle", DEM_D_Hertz_viscous_Coulomb_Nestle());
 
     Serializer::Register("DEM_Dempack", DEM_Dempack());
     Serializer::Register("DEM_Dempack2D", DEM_Dempack2D());
     Serializer::Register("DEM_KDEM", DEM_KDEM());
     Serializer::Register("DEM_KDEMFabric", DEM_KDEMFabric());
-    Serializer::Register("DEMBeamConstitutiveLaw", DEMBeamConstitutiveLaw());
     Serializer::Register("DEM_KDEM_Rankine", DEM_KDEM_Rankine());
     Serializer::Register("DEM_KDEM_CamClay", DEM_KDEM_CamClay());
     Serializer::Register("DEM_Dempack_torque", DEM_Dempack_torque());
     Serializer::Register("DEM_Dempack_dev", DEM_Dempack_dev());
     Serializer::Register("DEM_KDEM2D", DEM_KDEM2D());
     Serializer::Register("DEM_ExponentialHC", DEM_ExponentialHC());
+
+    Serializer::Register("DEM_Beam", DEM_Beam());
 
     Serializer::Register("ForwardEulerScheme", ForwardEulerScheme());
     Serializer::Register("SymplecticEulerScheme", SymplecticEulerScheme());
