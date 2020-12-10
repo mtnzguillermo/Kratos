@@ -1163,7 +1163,7 @@ public:
      */
     virtual int Check(const Properties& rMaterialProperties,
                       const GeometryType& rElementGeometry,
-                      const ProcessInfo& rCurrentProcessInfo) const;
+                      const ProcessInfo& rCurrentProcessInfo);
 
 
 

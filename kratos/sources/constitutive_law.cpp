@@ -1285,7 +1285,7 @@ void ConstitutiveLaw::GetLawFeatures(Features& rFeatures)
  */
 int ConstitutiveLaw::Check(const Properties& rMaterialProperties,
                            const GeometryType& rElementGeometry,
-                           const ProcessInfo& rCurrentProcessInfo) const
+                           const ProcessInfo& rCurrentProcessInfo)
 {
     KRATOS_TRY
 
