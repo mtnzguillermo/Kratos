@@ -169,6 +169,8 @@ void SerialParallelRuleOfMixturesLaw::IntegrateStrainSerialParallelBehaviour(
 
     bool is_converged = false;
     int iteration = 0, max_iterations = 150;
+    double first_residual = 0.0;
+    double updated_residual = 0.0;
     Vector parallel_strain_matrix(num_parallel_components), stress_residual(rSerialStrainMatrix.size());
     Matrix constitutive_tensor_matrix_ss(num_serial_components, num_serial_components), 
         constitutive_tensor_fiber_ss(num_serial_components, num_serial_components);
@@ -182,6 +184,9 @@ void SerialParallelRuleOfMixturesLaw::IntegrateStrainSerialParallelBehaviour(
                                                                   constitutive_tensor_matrix_ss, constitutive_tensor_fiber_ss,
                                                                   rSerialStrainMatrix);
         }
+
+
+
         // This method computes the strain vector for the matrix & fiber
         this->CalculateStrainsOnEachComponent(rStrainVector, parallel_projector, serial_projector, 
                                               rSerialStrainMatrix, matrix_strain_vector, fiber_strain_vector);
@@ -193,6 +198,17 @@ void SerialParallelRuleOfMixturesLaw::IntegrateStrainSerialParallelBehaviour(
         this->CheckStressEquilibrium(rValues, rStrainVector, serial_projector, rMatrixStressVector, rFiberStressVector, 
                                      stress_residual, is_converged, constitutive_tensor_matrix_ss, 
                                      constitutive_tensor_fiber_ss);
+
+        // Analyzing the convergence in terms of ratio
+        if (iteration == 0) {
+            first_residual = MathUtils<double>::Norm(stress_residual);
+        } else {
+            updated_residual = MathUtils<double>::Norm(stress_residual);
+        }
+        if (iteration > 0)
+            if (std::abs(updated_residual / first_residual) < 1.0e-4) 
+                is_converged = true;
+
         if (is_converged) {
             break;
         } else {
