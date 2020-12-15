@@ -342,9 +342,6 @@ public:
 
         this->CalculateAndAddRHS(rModelPart);
 
-        // TODO: STOP CRITERION
-        this->CheckStopCriterion(rModelPart);
-
         KRATOS_CATCH("")
     }
 
@@ -621,6 +618,9 @@ public:
             // Current step information "N+1" (before step update).
             this->UpdateTranslationalDegreesOfFreedom(it_node_begin + i, disppos, dim);
         } // for Node parallel
+
+        // TODO: STOP CRITERION
+        this->CheckStopCriterion(rModelPart);
 
         KRATOS_CATCH("")
     }
