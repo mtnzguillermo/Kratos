@@ -200,9 +200,13 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     }
 
     std::vector< std::vector<double> > output_incised(6);
-    // should print and get same values as uncut element, because pressure values are zero (previous solution step)
-    output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
-    output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
+    // only pressure gradient penalty: should print and get same values as uncut element, because pressure values of previous solution step are zero
+    //output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
+    //output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
+    // with velocity gradient penalty:
+    output_incised[0] = {-0.936162,8.819948812,-0.6557582459,67.57989341,174.5435981,0.1308775154,110.444523,215.3506723,0.3748807306}; // EmbeddedSymbolicNavierStokesDiscontinuous
+    output_incised[1] = {-21.81650306,-40.75920676,-0.6557581669,54.90454836,132.1891487,0.1308774929,90.0369547,179.8200581,0.374880674}; // EmbeddedQSVMSDiscontinuous
+
 
     counter = 0;
 

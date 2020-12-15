@@ -273,13 +273,25 @@ protected:
     void DefineIncisedGeometryData(EmbeddedDiscontinuousEdgeElementData& rData) const;
 
     /**
-    * This method adds a penalization for velocity gradients in incised elements.
-    * [penalization = volume_integral_of (dp_penalty_coefficient * N * pressure_DNDX)]
+    * This method adds a penalization for pressure gradients in incised elements.
+    * [penalization = - volume_integral_of (dp_penalty_coefficient * N * pressure_DNDX)]
     * @param rLHS reference to the LHS matrix
     * @param rRHS reference to the RHS vector
     * @param rData reference to element data structure
     */
     void AddPressureGradientPenalty(
+        MatrixType& rLHS,
+        VectorType& rRHS,
+        const EmbeddedDiscontinuousEdgeElementData& rData) const;
+
+    /**
+    * This method adds a penalization for velocity gradients in incised elements.
+    * [penalization = volume_integral_of (velocity_DNDX * velocity_DNDX)]
+    * @param rLHS reference to the LHS matrix
+    * @param rRHS reference to the RHS vector
+    * @param rData reference to element data structure
+    */
+    void AddVelocityGradientPenalty(
         MatrixType& rLHS,
         VectorType& rRHS,
         const EmbeddedDiscontinuousEdgeElementData& rData) const;
