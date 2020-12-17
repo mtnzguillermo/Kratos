@@ -132,6 +132,7 @@ class EmbeddedFormulation(object):
             "slip_length": 1.0e8,
             "penalty_coefficient": 10.0,
             "p_grad_penalty_constant": 0.0,
+            "v_grad_penalty_constant": 0.0,
             "dynamic_tau": 1.0,
             "level_set_type": "discontinuous"
         }""")
@@ -146,6 +147,7 @@ class EmbeddedFormulation(object):
         self.process_info_data[KratosMultiphysics.DYNAMIC_TAU] = formulation_settings["dynamic_tau"].GetDouble()
         self.process_info_data[KratosCFD.PENALTY_COEFFICIENT] = formulation_settings["penalty_coefficient"].GetDouble()
         self.process_info_data[KratosCFD.P_GRAD_PENALTY_CONSTANT] = formulation_settings["p_grad_penalty_constant"].GetDouble()
+        self.process_info_data[KratosCFD.V_GRAD_PENALTY_CONSTANT] = formulation_settings["v_grad_penalty_constant"].GetDouble()
         if formulation_settings["is_slip"].GetBool():
             self.process_info_data[KratosCFD.SLIP_LENGTH] = formulation_settings["slip_length"].GetDouble()
         else:

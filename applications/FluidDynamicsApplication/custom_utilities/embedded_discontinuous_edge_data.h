@@ -48,6 +48,7 @@ using typename EmbeddedDiscontinuousData<TFluidData>::InterfaceNormalsType;
 ///@{
 
 double PressureGradPenaltyConstant;
+double VelocityGradPenaltyConstant;
 
 constexpr static unsigned int NumEdges = (TFluidData::Dim - 1) * 3;
 
@@ -90,6 +91,7 @@ virtual void InitializeBoundaryConditionData(const ProcessInfo& rProcessInfo) ov
 {
     EmbeddedDiscontinuousData<TFluidData>::InitializeBoundaryConditionData(rProcessInfo);
     this->FillFromProcessInfo(PressureGradPenaltyConstant, P_GRAD_PENALTY_CONSTANT, rProcessInfo);
+    this->FillFromProcessInfo(VelocityGradPenaltyConstant, V_GRAD_PENALTY_CONSTANT, rProcessInfo);
 }
 
 /**
@@ -107,6 +109,7 @@ static int Check(
     KRATOS_CHECK_VARIABLE_KEY(SLIP_LENGTH);
     KRATOS_CHECK_VARIABLE_KEY(PENALTY_COEFFICIENT);
     KRATOS_CHECK_VARIABLE_KEY(P_GRAD_PENALTY_CONSTANT);
+    KRATOS_CHECK_VARIABLE_KEY(V_GRAD_PENALTY_CONSTANT);
     KRATOS_CHECK_VARIABLE_KEY(ELEMENTAL_DISTANCES);
     KRATOS_CHECK_VARIABLE_KEY(ELEMENTAL_EDGE_DISTANCES);
 

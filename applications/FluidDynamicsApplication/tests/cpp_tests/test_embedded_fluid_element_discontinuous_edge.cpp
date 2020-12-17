@@ -204,7 +204,7 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     //output_incised[0] = output_uncut[0]; // EmbeddedSymbolicNavierStokesDiscontinuous
     //output_incised[1] = output_uncut[1]; // EmbeddedQSVMSDiscontinuous
     // with velocity gradient penalty:
-    output_incised[0] = {-0.936162,8.819948812,-0.6557582459,67.57989341,174.5435981,0.1308775154,110.444523,215.3506723,0.3748807306}; // EmbeddedSymbolicNavierStokesDiscontinuous
+    output_incised[0] = {-0.936162,8.51995,-0.6557582459,67.57989341,174.5435981,0.1308775154,110.444523,215.3506723,0.3748807306}; // EmbeddedSymbolicNavierStokesDiscontinuous
     output_incised[1] = {-21.81650306,-40.75920676,-0.6557581669,54.90454836,132.1891487,0.1308774929,90.0369547,179.8200581,0.374880674}; // EmbeddedQSVMSDiscontinuous
 
 
@@ -212,6 +212,7 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
 
     // Test incised element (one edge is cut)
     model_part.GetProcessInfo().SetValue(P_GRAD_PENALTY_CONSTANT, 1.0);
+    model_part.GetProcessInfo().SetValue(V_GRAD_PENALTY_CONSTANT, 1.0);
     //for penalty constant 1.0: penalty coefficient of pressure gradient should be 223.607!
 
     elem_dist[0] =  0.2;
