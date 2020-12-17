@@ -213,7 +213,8 @@ KRATOS_TEST_CASE_IN_SUITE(EmbeddedElementDiscontinuousEdge2D3N, FluidDynamicsApp
     // Test incised element (one edge is cut)
     model_part.GetProcessInfo().SetValue(P_GRAD_PENALTY_CONSTANT, 1.0);
     model_part.GetProcessInfo().SetValue(V_GRAD_PENALTY_CONSTANT, 1.0);
-    //for penalty constant 1.0: penalty coefficient of pressure gradient should be 223.607!
+    //for penalty constant 1.0: penalty coefficient of pressure gradient should be 1.58114e+07
+    //for penalty constant 1.0: penalty coefficient of velocity gradient should be 158.114
 
     elem_dist[0] =  0.2;
     elem_dist[1] =  0.5;
