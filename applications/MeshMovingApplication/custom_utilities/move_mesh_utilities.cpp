@@ -57,6 +57,85 @@ void MoveMesh(ModelPart::NodesContainerType& rNodes) {
 
 //******************************************************************************
 //******************************************************************************
+void MoveModelPart(
+    ModelPart& rModelPart,
+    const array_1d<double,3>& rRotationAxis,
+    const double rotationAngle,
+    const array_1d<double,3>& rReferencePoint,
+    const array_1d<double,3>& rTranslationVector)
+{
+    KRATOS_TRY
+
+    const LinearTransform transform(
+        rRotationAxis,
+        rotationAngle,
+        rReferencePoint,
+        rTranslationVector);
+
+    MoveModelPart(rModelPart, transform);
+
+    KRATOS_CATCH("");
+}
+
+void MoveModelPart(
+    ModelPart& rModelPart,
+    const Parameters& rRotationAxis,
+    const Parameters& rRotationAngle,
+    const Parameters& rReferencePoint,
+    const Parameters& rTranslationVector)
+{
+    KRATOS_TRY
+
+    ParametricLinearTransform transform(
+        rRotationAxis,
+        rRotationAngle,
+        rReferencePoint,
+        rTranslationVector);
+
+    MoveModelPart(rModelPart, transform);
+
+    KRATOS_CATCH("");
+}
+
+void MoveModelPart(
+    ModelPart& rModelPart,
+    const LinearTransform& rTransform)
+{
+    KRATOS_TRY
+
+    block_for_each(
+        rModelPart.Nodes(),
+        [&rTransform](Node<3>& rNode){
+            noalias(rNode.GetSolutionStepValue(MESH_DISPLACEMENT)) = rTransform.Apply(rNode) - rNode;
+        });
+
+    KRATOS_CATCH("");
+}
+
+void MoveModelPart(
+    ModelPart& rModelPart,
+    ParametricLinearTransform& rTransform)
+{
+    KRATOS_TRY
+
+    const double time = rModelPart.GetProcessInfo().GetValue(TIME);
+
+    block_for_each(
+        rModelPart.Nodes(),
+        [&rTransform, time](Node<3>& rNode){
+            noalias(rNode.GetSolutionStepValue(MESH_DISPLACEMENT)) = rTransform.Apply(
+                rNode,
+                time,
+                rNode.X0(),
+                rNode.Y0(),
+                rNode.Z0()) - rNode;
+        });
+
+    KRATOS_CATCH("");
+}
+
+//******************************************************************************
+//******************************************************************************
 ModelPart* GenerateMeshPart(ModelPart &rModelPart,
                                     const std::string &rElementName) {
   KRATOS_TRY;
